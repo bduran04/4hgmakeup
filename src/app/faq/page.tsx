@@ -39,22 +39,22 @@ export default function FAQ() {
   const faqItems: FAQItem[] = [
     {
       question: "What services do you offer?",
-      answer: "We offer a wide range of makeup services including bridal makeup, special event makeup, photoshoot makeup, editorial makeup, and personalized makeup lessons. Each service is tailored to your unique features and style preferences.",
+      answer: "I offer a wide range of makeup services including bridal makeup, special event makeup, photoshoot makeup, editorial makeup, and personalized makeup lessons. Each service is tailored to your unique features and style preferences.",
       category: "Services"
     },
     {
       question: "How far in advance should I book for my wedding?",
-      answer: "For weddings, we recommend booking 3-6 months in advance, especially during peak wedding season (May-October). This ensures we can accommodate your preferred date and allows time for a trial session if desired.",
+      answer: "For weddings, I recommend booking 3-6 months in advance, especially during peak wedding season (May-October). This ensures we can accommodate your preferred date and allows time for a trial session if desired.",
       category: "Booking"
     },
     {
       question: "Do you offer trials for bridal makeup?",
-      answer: "Yes, we highly recommend scheduling a bridal trial 1-2 months before your wedding. This allows us to perfect your look and make any adjustments needed before your big day.",
+      answer: "Yes, I highly recommend scheduling a bridal trial 1-2 months before your wedding. This allows us to perfect your look and make any adjustments needed before your big day.",
       category: "Services"
     },
     {
       question: "What makeup brands do you use?",
-      answer: "We use high-quality, professional makeup brands including Charlotte Tilbury, NARS, Bobbi Brown, MAC, and other premium products. All products are chosen for their performance, quality, and staying power.",
+      answer: "I use high-quality, professional makeup brands including Charlotte Tilbury, NARS, Bobbi Brown, MAC, and other premium products. All products are chosen for their performance, quality, and staying power.",
       category: "Products"
     },
     {
@@ -64,17 +64,17 @@ export default function FAQ() {
     },
     {
       question: "Do you travel to clients?",
-      answer: "Yes, we offer on-location services for weddings and special events. Travel fees may apply depending on the distance. Please note your location when booking.",
+      answer: "Yes, I offer on-location services for weddings and special events. Travel fees may apply depending on the distance. Please note your location when booking.",
       category: "Services"
     },
     {
       question: "What is your cancellation policy?",
-      answer: "We require 48 hours notice for cancellations. Cancellations made with less than 48 hours notice may be subject to a 50% fee. No-shows are charged the full service amount.",
+      answer: "I require 48 hours notice for cancellations. Cancellations made with less than 48 hours notice may be subject to a 50% fee. No-shows are charged the full service amount.",
       category: "Policies"
     },
     {
       question: "Do you offer group services for weddings?",
-      answer: "Yes, we offer services for the entire bridal party. For groups of 4 or more, we can bring additional makeup artists to ensure everyone is ready on time.",
+      answer: "Yes, I offer services for the entire bridal party. For groups of 4 or more, we can bring additional makeup artists to ensure everyone is ready on time.",
       category: "Services"
     },
     {
@@ -84,17 +84,17 @@ export default function FAQ() {
     },
     {
       question: "What forms of payment do you accept?",
-      answer: "We accept credit/debit cards, cash, Venmo, and PayPal. For weddings and large events, a 50% deposit is required to secure your date, with the balance due on the day of service.",
+      answer: "We accept credit/debit cards, Venmo, and PayPal. For weddings and large events, a 50% deposit is required to secure your date, with the balance due on the day of service.",
       category: "Payment"
     },
     {
       question: "Are your makeup products hypoallergenic?",
-      answer: "Many of our products are hypoallergenic, but we recommend informing us of any allergies or sensitivities during booking. We can tailor our product selection to accommodate your needs.",
+      answer: "Many of our products are hypoallergenic, but I recommend informing us of any allergies or sensitivities during booking. I can tailor our product selection to accommodate your needs.",
       category: "Products"
     },
     {
       question: "Can I book a makeup lesson?",
-      answer: "Yes, we offer personalized makeup lessons where you'll learn techniques specific to your features, style, and skill level. We also provide product recommendations tailored to your needs.",
+      answer: "Yes, I offer personalized makeup lessons where you'll learn techniques specific to your features, style, and skill level. I also provide product recommendations tailored to your needs.",
       category: "Booking"
     },
     {

@@ -53,8 +53,8 @@ export default function Home() {
         <Carousel images={carouselImages} />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 bg-black/20">
           <h1 className="text-5xl md:text-6xl font-light text-white mb-4">
-            <span className="block font-serif italic">Simple</span>
-            <span className="block text-beauty-gold font-medium tracking-wider">BEAUTY</span>
+            <span className="block font-serif italic">For His Glory</span>
+            <span className="block text-beauty-gold font-medium tracking-wider">MAKEUP</span>
           </h1>
           <p className="text-white text-xl mb-8 max-w-lg px-4">Enhancing your natural beauty with a touch of artistry</p>
           <Link
@@ -80,15 +80,14 @@ export default function Home() {
               />
             </div>
             <div className="md:w-1/2">
-              <h2 className="text-3xl font-serif text-beauty-brown mb-6">About Simple Beauty</h2>
+              <h2 className="text-3xl font-serif text-beauty-brown mb-6">About Natalie Villela</h2>
               <p className="text-gray-700 mb-4">
-                With over 10 years of experience in the beauty industry, Simple Beauty
-                was founded on the principle that makeup should enhance your natural
-                beauty, not mask it.
+                With over 10 years of experience in the beauty industry, I am dedicated to enhancing your natural beauty.
+                My passion for makeup artistry began at a young age, and I have honed my skills through extensive training and hands-on experience.
               </p>
               <p className="text-gray-700 mb-6">
-                We specialize in creating timeless looks for brides, photo shoots,
-                special events, and everyday glamour that make you feel confident and beautiful.
+                I specialize in creating timeless looks for brides, photo shoots,
+                special events, quinceneras and everyday glamour that make you feel confident and beautiful.
               </p>
               <Link
                 href="/about"
@@ -104,9 +103,9 @@ export default function Home() {
       {/* Services Section */}
       <section className="py-20 px-4 bg-beauty-beige">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-serif text-beauty-brown mb-4">Our Services</h2>
+          <h2 className="text-3xl font-serif text-beauty-brown mb-4">My Services</h2>
           <p className="text-gray-700 mb-12 max-w-2xl mx-auto">
-            From bridal makeup to personal lessons, we offer a variety of beauty services
+            From bridal makeup to personal lessons, I offer a variety of beauty services
             tailored to your unique style and occasion.
           </p>
 
@@ -132,7 +131,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-serif text-beauty-brown mb-4">Portfolio Gallery</h2>
           <p className="text-gray-700 mb-12 max-w-2xl mx-auto">
-            Browse our collection of makeup looks and transformations for inspiration.
+            Browse my collection of makeup looks and transformations for inspiration.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

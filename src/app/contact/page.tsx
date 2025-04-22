@@ -77,7 +77,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-medium text-beauty-brown">Phone</h3>
-                    <p className="text-gray-700">(555) 123-4567</p>
+                    <p className="text-gray-700">(469) 618-3804</p>
                   </div>
                 </div>
                 
@@ -87,7 +87,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-medium text-beauty-brown">Email</h3>
-                    <p className="text-gray-700">hello@simplebeauty.com</p>
+                    <p className="text-gray-700">hello@fakemail.com</p>
                   </div>
                 </div>
                 
@@ -99,7 +99,7 @@ export default function Contact() {
                     <h3 className="font-medium text-beauty-brown">Studio</h3>
                     <p className="text-gray-700">
                       123 Beauty Lane<br />
-                      Anytown, CA 12345
+                      DFW, Texas
                     </p>
                   </div>
                 </div>

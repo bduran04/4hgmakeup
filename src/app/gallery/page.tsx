@@ -49,9 +49,9 @@ export default function Gallery() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 bg-beauty-brown">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">Our Portfolio</h1>
+          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">My Portfolio</h1>
           <p className="text-beauty-beige text-lg max-w-2xl mx-auto">
-            Browse our collection of makeup looks and transformations created for various occasions and photoshoots.
+            Browse my collection of makeup looks and transformations created for various occasions and photoshoots.
           </p>
         </div>
       </section>
