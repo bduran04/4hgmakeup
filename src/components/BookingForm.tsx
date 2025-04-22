@@ -1,4 +1,3 @@
-// src/components/BookingForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -225,7 +224,7 @@ export default function BookingForm() {
                   selected={formData.date || undefined}
                   onSelect={handleDateSelect}
                   className="border rounded-md p-2"
-                  disabled={(date) => {
+                  disabled={(date: Date) => {
                     const day = date.getDay();
                     // Disable weekends for this example
                     return day === 0; // Sunday

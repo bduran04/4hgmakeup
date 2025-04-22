@@ -1,4 +1,3 @@
-// src/app/gallery/page.tsx
 'use client';
 
 import { useState } from 'react';

@@ -1,4 +1,3 @@
-// src/components/Navbar.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,8 +10,6 @@ const navigation = [
   { name: 'ABOUT', href: '/about' },
   { name: 'SERVICES', href: '/services' },
   { name: 'GALLERY', href: '/gallery' },
-  { name: 'EVENTS', href: '/events' },
-  { name: 'BLOG', href: '/blog' },
   { name: 'FAQ', href: '/faq' },
   { name: 'CONTACT', href: '/contact' },
   { name: 'SCHEDULING', href: '/scheduling' },

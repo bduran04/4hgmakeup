@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from 'next';
 import { Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';

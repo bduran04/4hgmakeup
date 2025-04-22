@@ -1,4 +1,3 @@
-// src/lib/supabase.ts
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize the Supabase client
@@ -20,6 +19,7 @@ export type Portfolio = {
 };
 
 export type Service = {
+  category: string;
   id: string;
   title: string;
   description: string;
@@ -29,4 +29,3 @@ export type Service = {
   created_at: string;
 };
 
-// Example Mutation
