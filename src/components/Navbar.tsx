@@ -98,8 +98,8 @@ export default function Navbar() {
           <div className="flex flex-col items-center mt-8 space-y-8">
             <Link href="/" className="mb-8">
               <Image 
-                src="/images/logo.png" 
-                alt="Simple Beauty Logo"
+                src="/monogram-hq.svg" 
+                alt="4 His Glory Makeup Logo"
                 width={180}
                 height={72}
               />
