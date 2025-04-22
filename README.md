@@ -1,23 +1,24 @@
 # Natalie Makeup Artist Website
 
-A modern, elegant website for a makeup artist business built with Next.js and TypeScript. Features a responsive design, image gallery with Supabase storage integration, and an admin dashboard for content management.
+A modern, elegant website for a makeup artist business built with Next.js (App Router), TypeScript, and Supabase integration for image storage.
 
 ## Features
 
+- Next.js 14 with App Router architecture
+- TypeScript for type safety
 - Responsive design with Tailwind CSS
 - Image gallery with lightbox functionality
 - Category filtering for gallery images
-- Supabase integration for image storage
+- Supabase integration for image storage and authentication
 - Admin dashboard for image management
-- TypeScript for type safety
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 14.x or later
+- Node.js 16.x or later
 - npm or yarn
-- Supabase account (for image storage)
+- Supabase account (for image storage and authentication)
 
 ### Installation
 
@@ -59,33 +60,31 @@ yarn dev
 ## Project Structure
 
 ```
-├── components/            # React components
-│   ├── admin/             # Admin dashboard components
-│   │   ├── GalleryManager.tsx
-│   │   └── ImageUploader.tsx
-│   ├── Footer.tsx
-│   ├── Gallery.tsx        # Gallery component with lightbox
-│   ├── Layout.tsx
-│   └── Navbar.tsx
-├── pages/                 # Next.js pages
-│   ├── admin/             # Admin pages
-│   │   ├── gallery.tsx    # Gallery management page
-│   │   └── login.tsx      # Admin login page
-│   ├── _app.tsx           # App component
-│   ├── gallery.tsx        # Public gallery page
-│   └── index.tsx          # Homepage
-├── public/                # Static assets
-│   └── images/            # Local images (fallback)
-├── styles/                # CSS styles
-│   └── globals.css        # Global styles with Tailwind
-├── types/                 # TypeScript type definitions
-│   └── index.ts
-├── utils/                 # Utility functions
-│   └── supabase.ts        # Supabase client and helper functions
-├── .env.local.example     # Example environment variables
-├── tailwind.config.ts     # Tailwind CSS configuration
-├── tsconfig.json          # TypeScript configuration
-└── package.json           # Project dependencies
+├── src/                  # Source directory
+│   ├── app/              # Next.js App Router pages
+│   │   ├── admin/        # Admin section
+│   │   │   ├── gallery/  # Gallery management page
+│   │   │   └── login/    # Admin login page
+│   │   └── gallery/      # Public gallery page
+│   ├── components/       # React components
+│   │   ├── admin/        # Admin dashboard components
+│   │   │   ├── GalleryManager.tsx
+│   │   │   └── ImageUploader.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Gallery.tsx   # Gallery component with lightbox
+│   │   └── Navigation.tsx
+│   ├── styles/           # CSS styles
+│   │   └── globals.css   # Global styles with Tailwind
+│   ├── types/            # TypeScript type definitions
+│   │   └── index.ts
+│   └── utils/            # Utility functions
+│       └── supabase.ts   # Supabase client and helper functions
+├── public/               # Static assets
+│   └── images/           # Local images (fallback)
+├── middleware.ts         # Next.js middleware for auth
+├── tailwind.config.ts    # Tailwind CSS configuration
+├── tsconfig.json         # TypeScript configuration
+└── package.json          # Project dependencies
 ```
 
 ## Customization
@@ -104,15 +103,12 @@ colors: {
 
 ### Fonts
 
-Edit the font configuration in the `tailwind.config.ts` file:
+The site uses Next.js Font Optimization for loading the following fonts:
+- Montserrat (sans-serif)
+- Playfair Display (serif)
+- Great Vibes (script)
 
-```typescript
-fontFamily: {
-  'sans': ['Montserrat', 'sans-serif'],
-  'serif': ['Playfair Display', 'serif'],
-  'script': ['Great Vibes', 'cursive'],
-},
-```
+You can modify these in `src/app/layout.tsx`.
 
 ## Deployment
 
@@ -120,19 +116,21 @@ The site can be deployed to Vercel, Netlify, or any other Next.js-compatible hos
 
 ### Vercel Deployment
 
+For the easiest deployment experience:
+
 ```bash
 npm install -g vercel
 vercel
 ```
 
-### Static Export
+### Environment Variables
 
-```bash
-npm run build
-npm run export
+Make sure to set the following environment variables on your deployment platform:
+
 ```
-
-The static export will be in the `out` directory, which can be deployed to any static hosting service.
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
 ## License
 
