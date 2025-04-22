@@ -38,8 +38,8 @@ export default function Navbar() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <Image 
-                src="/images/logo.png" 
-                alt="Simple Beauty Logo"
+                src="/monogram-hq.svg" 
+                alt="4HG_Makeup_Logo"
                 width={150}
                 height={60}
                 className={`transition-all duration-300 ${

@@ -6,19 +6,19 @@ import ServiceCard from '@/components/ServiceCard';
 
 const carouselImages = [
   {
-    src: '/images/makeup-1.jpg',
+    src: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1745344480/IMG_2897_rqsnjs.png',
     alt: 'Bridal makeup',
   },
   {
-    src: '/images/makeup-2.jpg',
+    src: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1745344461/IMG_2896_q8cvoo.png',
     alt: 'Fashion makeup',
   },
   {
-    src: '/images/makeup-3.jpg',
+    src: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1745344410/IMG_2899_e0kn0e.png',
     alt: 'Special event makeup',
   },
   {
-    src: '/images/makeup-4.jpg',
+    src: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1745344390/IMG_2900_buc2vo.png',
     alt: 'Natural makeup look',
   },
 ];
@@ -48,7 +48,7 @@ export default function Home() {
       <Navbar />
 
       {/* Hero Section with Carousel */}
-      <section className="relative w-full h-[600px]">
+      <section className="relative w-full h-[500px]">
         <Carousel images={carouselImages} />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 bg-black/20">
           <h1 className="text-5xl md:text-6xl font-light text-white mb-4">
@@ -135,13 +135,13 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="relative group overflow-hidden rounded-lg">
+              <div key={num} className="relative group overflow-hidden rounded-lg h-48 md:h-56">
                 <Image
                   src={`/images/gallery-${num}.jpg`}
                   alt={`Gallery image ${num}`}
-                  width={300}
-                  height={300}
-                  className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  sizes="(max-width: 768px) 45vw, 22vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-beauty-brown/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <span className="text-white text-lg font-medium">View</span>
