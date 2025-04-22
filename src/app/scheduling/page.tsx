@@ -85,7 +85,7 @@ export default function Scheduling() {
                 </p>
                 <div className="space-y-2">
                   <p className="text-beauty-brown font-medium">Call us: (469) 618-3804</p>
-                  <p className="text-beauty-brown font-medium">Email: booking@fakemail.com</p>
+                  <p className="text-beauty-brown font-medium">Email: 4hisglorymakeup@gmail.com</p>
                 </div>
               </div>
             </div>

@@ -4,7 +4,6 @@ import Carousel from '@/components/Carousel';
 import Navbar from '@/components/Navbar';
 import ServiceCard from '@/components/ServiceCard';
 
-// Sample carousel images - you'll replace these with your actual images
 const carouselImages = [
   {
     src: '/images/makeup-1.jpg',

@@ -87,29 +87,16 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-medium text-beauty-brown">Email</h3>
-                    <p className="text-gray-700">hello@fakemail.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="bg-beauty-brown/10 p-3 rounded-full">
-                    <MapPin className="text-beauty-brown h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-beauty-brown">Studio</h3>
-                    <p className="text-gray-700">
-                      123 Beauty Lane<br />
-                      DFW, Texas
-                    </p>
+                    <p className="text-gray-700">4hisglorymakeup@gmail.com</p>
                   </div>
                 </div>
               </div>
               
               <div className="mt-8">
-                <h3 className="font-medium text-beauty-brown mb-4">Follow Us</h3>
+                <h3 className="font-medium text-beauty-brown mb-4">Follow Me</h3>
                 <div className="flex gap-4">
                   <a 
-                    href="https://instagram.com" 
+                    href="https://www.instagram.com/4hisglorymakeup/" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bg-beauty-brown/10 p-3 rounded-full hover:bg-beauty-brown hover:text-white transition-all"
@@ -247,49 +234,6 @@ export default function Contact() {
         </div>
       </section>
       
-      {/* Map Section */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-serif text-beauty-brown mb-4">Visit Our Studio</h2>
-            <p className="text-gray-700 max-w-2xl mx-auto">
-              Located in a convenient downtown location with ample parking.
-            </p>
-          </div>
-          
-          <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg">
-            {/* This would be replaced with an actual map integration */}
-            <div className="w-full h-full bg-beauty-beige flex items-center justify-center">
-              <p className="text-beauty-brown">
-                Google Maps or other map integration would go here
-              </p>
-            </div>
-          </div>
-          
-          <div className="mt-8 text-center">
-            <h3 className="font-medium text-beauty-brown mb-2">Business Hours</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-2xl mx-auto">
-              <div className="p-4 bg-beauty-beige rounded-lg">
-                <p className="font-medium">Monday - Friday</p>
-                <p>9:00 AM - 7:00 PM</p>
-              </div>
-              <div className="p-4 bg-beauty-beige rounded-lg">
-                <p className="font-medium">Saturday</p>
-                <p>8:00 AM - 5:00 PM</p>
-              </div>
-              <div className="p-4 bg-beauty-beige rounded-lg">
-                <p className="font-medium">Sunday</p>
-                <p>By Appointment</p>
-              </div>
-              <div className="p-4 bg-beauty-beige rounded-lg">
-                <p className="font-medium">Holidays</p>
-                <p>Call to Confirm</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
       {/* FAQ Section */}
       <section className="py-16 px-4 bg-beauty-beige">
         <div className="max-w-4xl mx-auto">
@@ -306,7 +250,7 @@ export default function Contact() {
                 What services do you offer?
               </h3>
               <p className="text-gray-700">
-                We offer a wide range of makeup services including bridal, special event, editorial, photoshoot, and makeup lessons. Visit our Services page for detailed information.
+                We offer a wide range of makeup services including bridal, special event, quincenera, photoshoot, and makeup lessons. Visit our Services page for detailed information.
               </p>
             </div>
             
@@ -315,7 +259,7 @@ export default function Contact() {
                 How do I book an appointment?
               </h3>
               <p className="text-gray-700">
-                You can book directly through our website using our online scheduling system, call us at (555) 123-4567, or send us an email at hello@simplebeauty.com.
+                You can book directly through our website using our online scheduling system, call us at (469) 618-3804, or send us an email at 4hisglorymakeup@gmail.com.
               </p>
             </div>
             
