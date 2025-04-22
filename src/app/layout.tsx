@@ -17,8 +17,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Simple Beauty | Professional Makeup Artistry',
-  description: 'Professional makeup services for weddings, special events, and photoshoots.',
+  title: 'For His Glory Makeup | Professional Makeup Artistry',
+  description: 'Professional makeup services for weddings, special events, quinceneras and photoshoots.',
 };
 
 export default function RootLayout({
