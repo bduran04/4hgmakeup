@@ -1,25 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { Clock, DollarSign } from 'lucide-react';
 import { useServices } from '@/lib/queries';
-import { Clock, DollarSign, Users, Calendar } from 'lucide-react';
-
-// Define the Service type
-type Service = {
-    id: string;
-    title: string;
-    description: string;
-    price: number;
-    duration: number;
-    category: string; // Add this line to define the 'category' property
-    icon: string;
-    created_at: string;
-    long_description?: string; // Optional property
-  };
-
 
 // Service categories
 const categories = [
@@ -48,7 +34,7 @@ export default function Services() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 bg-beauty-brown">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">Our Services</h1>
+          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">My Services</h1>
           <p className="text-beauty-beige text-lg max-w-2xl mx-auto">
             Professional makeup services tailored to your unique style and occasion.
           </p>
@@ -84,47 +70,38 @@ export default function Services() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beauty-brown"></div>
             </div>
           ) : filteredServices && filteredServices.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-8">
               {filteredServices.map((service) => (
-                <div key={service.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
-                  <div className="aspect-video relative">
-                    <Image 
-                      src={`/images/services/${service.category}.jpg`}
-                      alt={service.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-6 flex-grow">
-                    <h2 className="text-2xl font-serif text-beauty-brown mb-2">{service.title}</h2>
-                    <p className="text-gray-700 mb-4">{service.description}</p>
+                <div key={service.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <h2 className="text-2xl font-serif text-beauty-brown mb-2">{service.title}</h2>
+                    </div>
                     
-                    <div className="flex flex-wrap gap-4 mb-6">
-                      <div className="flex items-center text-sm text-gray-500">
+                    <div className="flex flex-col space-y-2 md:items-end mt-4 md:mt-0">
+                      <div className="flex items-center text-sm text-gray-600">
                         <Clock size={16} className="mr-1" />
                         <span>{service.duration} minutes</span>
                       </div>
-                      <div className="flex items-center text-sm text-gray-500">
+                      <div className="flex items-center text-sm font-medium text-beauty-brown">
                         <DollarSign size={16} className="mr-1" />
-                        <span>${service.price}</span>
+                        <span>{service.price}</span>
                       </div>
+                      <Link 
+                        href="/scheduling"
+                        className="mt-2 inline-block bg-beauty-brown text-white px-4 py-2 rounded text-sm hover:bg-opacity-90 transition-all"
+                      >
+                        Book Now
+                      </Link>
                     </div>
-                    
-                    {service.description && (
-                      <div className="mt-4">
-                        <h3 className="text-lg font-medium text-beauty-brown mb-2">What to Expect</h3>
-                        <p className="text-gray-700">{service.description}</p>
-                      </div>
-                    )}
                   </div>
-                  <div className="p-6 pt-0 mt-auto">
-                    <Link 
-                      href="/scheduling"
-                      className="block w-full bg-beauty-brown text-white text-center py-3 rounded hover:bg-opacity-90 transition-all"
-                    >
-                      Book Now
-                    </Link>
-                  </div>
+                  
+                  {service.description && (
+                    <div className="mt-6 pt-6 border-t border-gray-100">
+                      <h3 className="text-lg font-medium text-beauty-brown mb-2">Details</h3>
+                      <p className="text-gray-700">{service.description}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -136,123 +113,100 @@ export default function Services() {
         </div>
       </section>
       
-      {/* Process Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-serif text-beauty-brown mb-4">Our Process</h2>
-            <p className="text-gray-700 max-w-2xl mx-auto">
-              We believe in a personalized approach to makeup. Here's what to expect when you book with us.
-            </p>
+      {/* Booking Process Section */}
+      <section className="py-16 px-4 bg-beauty-beige">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-serif text-beauty-brown mb-6">How to Book</h2>
+          <p className="text-gray-700 mb-10 max-w-2xl mx-auto">
+            Booking your makeup service is simple! Follow these steps to schedule your appointment:
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-beauty-brown text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-medium">1</div>
+              <h3 className="text-lg font-medium text-beauty-brown mb-2">Choose a Service</h3>
+              <p className="text-gray-600">Select the service that best fits your needs and occasion.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-beauty-brown text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-medium">2</div>
+              <h3 className="text-lg font-medium text-beauty-brown mb-2">Select a Date & Time</h3>
+              <p className="text-gray-600">Pick from available dates and times that work with your schedule.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-beauty-brown text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-medium">3</div>
+              <h3 className="text-lg font-medium text-beauty-brown mb-2">Confirm Details</h3>
+              <p className="text-gray-600">Provide your information and any special requests or needs.</p>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="bg-beauty-brown/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="text-beauty-brown h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-serif text-beauty-brown mb-2">1. Book</h3>
-              <p className="text-gray-700">
-                Schedule your appointment online or give us a call to find a time that works for you.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-beauty-brown/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="text-beauty-brown h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-serif text-beauty-brown mb-2">2. Consult</h3>
-              <p className="text-gray-700">
-                We'll discuss your vision, preferences, and the occasion to create your perfect look.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-beauty-brown/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="text-beauty-brown h-8 w-8">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-serif text-beauty-brown mb-2">3. Create</h3>
-              <p className="text-gray-700">
-                Our artists use premium products to enhance your natural beauty and create your ideal look.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-beauty-brown/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="text-beauty-brown h-8 w-8">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-serif text-beauty-brown mb-2">4. Enjoy</h3>
-              <p className="text-gray-700">
-                Look and feel your best with makeup that enhances your natural beauty and lasts throughout your event.
-              </p>
-            </div>
+          <div className="mt-12">
+            <Link 
+              href="/scheduling" 
+              className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all"
+            >
+              Book Now
+            </Link>
           </div>
         </div>
       </section>
       
-      {/* Products Section */}
-      <section className="py-20 px-4 bg-beauty-beige">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="md:w-1/2">
-              <Image 
-                src="/images/products.jpg" 
-                alt="Premium Makeup Products" 
-                width={500} 
-                height={400}
-                className="rounded-lg shadow-lg"
-              />
+      {/* FAQ Preview Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-serif text-beauty-brown mb-4">Common Questions</h2>
+            <p className="text-gray-700 max-w-2xl mx-auto">
+              Here are some frequently asked questions about my services.
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="bg-beauty-beige rounded-lg p-6">
+              <h3 className="text-lg font-medium text-beauty-brown mb-2">How long does a makeup session take?</h3>
+              <p className="text-gray-700">Most makeup applications take between 45-60 minutes depending on the complexity of the look. Bridal makeup may take 60-90 minutes.</p>
             </div>
-            <div className="md:w-1/2">
-              <h2 className="text-3xl font-serif text-beauty-brown mb-6">Premium Products</h2>
-              <p className="text-gray-700 mb-4">
-                We use only high-quality, cruelty-free products that look beautiful on camera and in person.
-              </p>
-              <p className="text-gray-700 mb-6">
-                Our professional kit includes brands like Charlotte Tilbury, Pat McGrath, NARS, Bobbi Brown, and more to ensure flawless, long-lasting makeup for any occasion.
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-lg">
-                  <h3 className="font-medium text-beauty-brown mb-1">Long-Lasting</h3>
-                  <p className="text-sm text-gray-600">Makeup that stays fresh from day to night</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg">
-                  <h3 className="font-medium text-beauty-brown mb-1">Skin-Friendly</h3>
-                  <p className="text-sm text-gray-600">Non-comedogenic formulas for all skin types</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg">
-                  <h3 className="font-medium text-beauty-brown mb-1">HD-Ready</h3>
-                  <p className="text-sm text-gray-600">Camera-friendly for perfect photos</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg">
-                  <h3 className="font-medium text-beauty-brown mb-1">Cruelty-Free</h3>
-                  <p className="text-sm text-gray-600">Ethical products that perform beautifully</p>
-                </div>
-              </div>
+            
+            <div className="bg-beauty-beige rounded-lg p-6">
+              <h3 className="text-lg font-medium text-beauty-brown mb-2">Do you offer trials for bridal makeup?</h3>
+              <p className="text-gray-700">Yes, I highly recommend scheduling a trial 2-4 weeks before your wedding to perfect your look and address any concerns.</p>
             </div>
+            
+            <div className="bg-beauty-beige rounded-lg p-6">
+              <h3 className="text-lg font-medium text-beauty-brown mb-2">Do you travel to clients?</h3>
+              <p className="text-gray-700">Yes, I offer on-location services for weddings and special events. Travel fees may apply depending on the distance.</p>
+            </div>
+          </div>
+          
+          <div className="text-center mt-10">
+            <Link 
+              href="/faq" 
+              className="text-beauty-brown border-b-2 border-beauty-brown pb-1 hover:text-beauty-gold hover:border-beauty-gold transition-all"
+            >
+              View All FAQs
+            </Link>
           </div>
         </div>
       </section>
       
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-beauty-gold/10">
+      <section className="py-16 px-4 bg-beauty-gold/20">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-serif text-beauty-brown mb-4">Ready to Book Your Appointment?</h2>
           <p className="text-gray-700 mb-8 max-w-2xl mx-auto">
-            Schedule your makeup service today and let us enhance your natural beauty for your special occasion.
+            Let me help you look and feel your best for your special occasion.
           </p>
           <Link 
             href="/scheduling" 
-            className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all inline-block"
+            className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all"
           >
             Book Now
           </Link>
         </div>
       </section>
+      
+      <Footer />
     </main>
   );
 }

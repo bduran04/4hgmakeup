@@ -1,8 +1,12 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import Carousel from '@/components/Carousel';
 import Navbar from '@/components/Navbar';
 import ServiceCard from '@/components/ServiceCard';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const carouselImages = [
   {
@@ -43,6 +47,31 @@ const services = [
 ];
 
 export default function Home() {
+  const [previewImages, setPreviewImages] = useState<{ [key: string]: any }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPreviewImages = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('images')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (error) throw error;
+        setPreviewImages(data || []);
+      } catch (error) {
+        console.error('Error fetching preview images:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPreviewImages();
+  }, []);
+
   return (
     <main className="min-h-screen bg-beauty-beige">
       <Navbar />
@@ -92,7 +121,7 @@ export default function Home() {
                 href="/about"
                 className="text-beauty-brown border-b-2 border-beauty-brown pb-1 hover:text-beauty-gold hover:border-beauty-gold transition-all"
               >
-                Learn more about us
+                Learn more about me
               </Link>
             </div>
           </div>
@@ -134,20 +163,33 @@ export default function Home() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="relative group overflow-hidden rounded-lg h-48 md:h-56">
-                <Image
-                  src={`/images/gallery-${num}.jpg`}
-                  alt={`Gallery image ${num}`}
-                  fill
-                  sizes="(max-width: 768px) 45vw, 22vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-beauty-brown/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-white text-lg font-medium">View</span>
-                </div>
+            {isLoading ? (
+              // Loading state
+              <div className="col-span-4 flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beauty-brown"></div>
               </div>
-            ))}
+            ) : previewImages.length > 0 ? (
+              // Display images from the database
+              previewImages.map((image) => (
+                <div key={image.id} className="relative group overflow-hidden rounded-lg h-48 md:h-56">
+                  <Image
+                    src={image.image_url}
+                    alt={image.alt_text || image.title}
+                    fill
+                    sizes="(max-width: 768px) 45vw, 22vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-beauty-brown/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="text-white text-lg font-medium">View</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              // Fallback if no images are found
+              <div className="col-span-4 text-center py-8">
+                <p className="text-gray-500">No gallery images available.</p>
+              </div>
+            )}
           </div>
 
           <div className="mt-12">

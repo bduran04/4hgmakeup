@@ -4,33 +4,68 @@ import { supabase, Portfolio, Service } from './supabase';
 // Portfolio Queries
 export const usePortfolioItems = () => {
   return useQuery({
-    queryKey: ['portfolio'],
+    queryKey: ['images'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('portfolio')
+        .from('images')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
-      return data as Portfolio[];
+      return data;
     },
   });
 };
 
+// Fetch portfolio items by category
 export const usePortfolioItemsByCategory = (category: string) => {
   return useQuery({
-    queryKey: ['portfolio', category],
+    queryKey: ['images', category],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('portfolio')
+        .from('images')  // Changed from 'portfolio' to 'images'
         .select('*')
         .eq('category', category)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
-      return data as Portfolio[];
+      return data;
     },
     enabled: !!category,
+  });
+};
+
+// Fetch all FAQ items
+export const useFAQs = () => {
+  return useQuery({
+    queryKey: ['faqs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+};
+
+// Fetch FAQ items by category
+export const useFAQsByCategory = (category: string) => {
+  return useQuery({
+    queryKey: ['faqs', category],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .ilike('category', category)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!category && category !== 'all', // Only run if a valid category is provided
   });
 };
 
@@ -43,7 +78,7 @@ export const useServices = () => {
         .from('services')
         .select('*')
         .order('created_at', { ascending: true });
-      
+
       if (error) throw error;
       return data as Service[];
     },
@@ -59,7 +94,7 @@ export const useService = (id: string) => {
         .select('*')
         .eq('id', id)
         .single();
-      
+
       if (error) throw error;
       return data as Service;
     },

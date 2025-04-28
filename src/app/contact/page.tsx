@@ -55,9 +55,9 @@ export default function Contact() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 bg-beauty-brown">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">Contact Us</h1>
+          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">Contact Me</h1>
           <p className="text-beauty-beige text-lg max-w-2xl mx-auto">
-            Have questions or ready to book an appointment? Get in touch with us.
+            Have questions or ready to book an appointment? Get in touch with me.
           </p>
         </div>
       </section>
@@ -118,12 +118,12 @@ export default function Contact() {
             {/* Contact Form */}
             <div className="md:w-2/3">
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h2 className="text-2xl font-serif text-beauty-brown mb-6">Send Us a Message</h2>
+                <h2 className="text-2xl font-serif text-beauty-brown mb-6">Send Me a Message</h2>
                 
                 {submitted ? (
                   <div className="bg-green-100 text-green-800 p-4 rounded">
                     <h3 className="font-medium">Thank You!</h3>
-                    <p>Your message has been sent. We'll respond as soon as possible.</p>
+                    <p>Your message has been sent. I'll respond as soon as possible.</p>
                     <button
                       onClick={() => setSubmitted(false)}
                       className="mt-4 text-beauty-brown underline"
@@ -240,7 +240,7 @@ export default function Contact() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-serif text-beauty-brown mb-4">Frequently Asked Questions</h2>
             <p className="text-gray-700 max-w-2xl mx-auto">
-              Find answers to common questions about our services and booking process.
+              Find answers to common questions about my services and booking process.
             </p>
           </div>
           
@@ -250,7 +250,7 @@ export default function Contact() {
                 What services do you offer?
               </h3>
               <p className="text-gray-700">
-                We offer a wide range of makeup services including bridal, special event, quincenera, photoshoot, and makeup lessons. Visit our Services page for detailed information.
+                I offer a wide range of makeup services including bridal, special event, quincenera, photoshoot, and makeup lessons. Visit my Services page for detailed information.
               </p>
             </div>
             
@@ -259,7 +259,7 @@ export default function Contact() {
                 How do I book an appointment?
               </h3>
               <p className="text-gray-700">
-                You can book directly through our website using our online scheduling system, call us at (469) 618-3804, or send us an email at 4hisglorymakeup@gmail.com.
+                You can book directly through my website by sending me a message, call me at (469) 618-3804, send me an email at 4hisglorymakeup@gmail.com, or DM me via Instagram.
               </p>
             </div>
             
@@ -268,7 +268,7 @@ export default function Contact() {
                 Do you travel for events?
               </h3>
               <p className="text-gray-700">
-                Yes, we offer on-location services for weddings and special events. Travel fees may apply depending on the distance. Please note your location when booking.
+                Yes, I offer on-location services for weddings and special events. Travel fees may apply depending on the distance. Please note your location when booking.
               </p>
             </div>
             
@@ -289,7 +289,7 @@ export default function Contact() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-serif text-beauty-brown mb-4">Ready to Book Your Appointment?</h2>
           <p className="text-gray-700 mb-8 max-w-2xl mx-auto">
-            Schedule your makeup service today and let us enhance your natural beauty for your special occasion.
+            Schedule your makeup service today and let me enhance your natural beauty for your special occasion.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
