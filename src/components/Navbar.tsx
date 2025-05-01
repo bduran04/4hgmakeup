@@ -12,7 +12,6 @@ const navigation = [
   { name: 'GALLERY', href: '/gallery' },
   { name: 'FAQ', href: '/faq' },
   { name: 'CONTACT', href: '/contact' },
-  { name: 'SCHEDULING', href: '/scheduling' },
 ];
 
 export default function Navbar() {

@@ -86,7 +86,7 @@ export default function Home() {
           </h1>
           <p className="text-white text-xl mb-8 max-w-lg px-4">Enhancing your natural beauty with a touch of artistry</p>
           <Link
-            href="/scheduling"
+            href="/contact"
             className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all"
           >
             Book Now
@@ -100,7 +100,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2">
               <Image
-                src="/images/about.jpg"
+                src="https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg"
                 alt="Makeup Artist"
                 width={500}
                 height={600}
@@ -210,18 +210,12 @@ export default function Home() {
           <p className="text-gray-700 mb-8 max-w-2xl mx-auto">
             Book your appointment today and let us enhance your natural beauty.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/scheduling"
-              className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all"
-            >
-              Book Now
-            </Link>
+          <div className="flex justify-center">
             <Link
               href="/contact"
               className="bg-transparent border-2 border-beauty-brown text-beauty-brown px-8 py-3 rounded hover:bg-beauty-brown hover:text-white transition-all"
             >
-              Contact Us
+              Contact Me
             </Link>
           </div>
         </div>

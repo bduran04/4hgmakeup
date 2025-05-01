@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useFAQs } from '@/lib/queries';
+import Link from 'next/link';
 
 // FAQ item interface
 interface FAQItem {
@@ -17,47 +17,86 @@ interface FAQItem {
 }
 
 const categories = [
-    { id: 'all', name: 'All' },
-    { id: 'Services', name: 'Services' },
-    { id: 'Booking', name: 'Booking' },
-    { id: 'Products', name: 'Products' },
-    { id: 'Payment', name: 'Payment' },
-    { id: 'Policies', name: 'Policies' }
-  ];
+  { id: 'all', name: 'All' },
+  { id: 'Services', name: 'Services' },
+  { id: 'Booking', name: 'Booking' },
+  { id: 'Products', name: 'Products' },
+  { id: 'Payment', name: 'Payment' },
+  { id: 'Policies', name: 'Policies' }
+];
 
 export default function FAQ() {
-    const [activeCategory, setActiveCategory] = useState('all');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [expandedItems, setExpandedItems] = useState<string[]>([]);
-    
-    // Use the appropriate query hook based on selected category
-    const { data: allFAQs, isLoading: allLoading } = useFAQs();
-    const { data: categoryFAQs, isLoading: categoryLoading } = 
-      useFAQsByCategory(activeCategory !== 'all' ? activeCategory : '');
-    
-    // Determine which data and loading state to use
-    const isLoading = activeCategory === 'all' ? allLoading : categoryLoading;
-    const faqItems: FAQItem[] = (activeCategory === 'all' ? allFAQs : categoryFAQs) ?? [];
-    
-    // Toggle FAQ item expansion
-    const toggleItem = (id: string) => {
-      setExpandedItems(prev => 
-        prev.includes(id) 
-          ? prev.filter(i => i !== id) 
-          : [...prev, id]
-      );
-    };
-    
-    // Filter FAQ items based on search query
-    const filteredFAQs = faqItems.filter(item => 
-      item.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+
+  function useFAQsByCategory(category: string): { data: FAQItem[] | null; isLoading: boolean } {
+    const [data, setData] = useState<FAQItem[] | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+      const fetchFAQs = async () => {
+        setIsLoading(true);
+        try {
+          const { data: fetchedData, error } = await supabase
+            .from('faqs')
+            .select('*')
+            .eq('category', category)
+            .order('display_order', { ascending: true });
+
+          if (error) {
+            console.error('Error fetching FAQs by category:', error);
+            setData(null);
+          } else {
+            setData(fetchedData);
+          }
+        } catch (err) {
+          console.error('Unexpected error fetching FAQs by category:', err);
+          setData(null);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      if (category) {
+        fetchFAQs();
+      } else {
+        setData(null);
+        setIsLoading(false);
+      }
+    }, [category]);
+
+    return { data, isLoading };
+  }
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // Use the appropriate query hook based on selected category
+  const { data: allFAQs, isLoading: allLoading } = useFAQs();
+  const { data: categoryFAQs, isLoading: categoryLoading } =
+    useFAQsByCategory(activeCategory !== 'all' ? activeCategory : '');
+
+  // Determine which data and loading state to use
+  const isLoading = activeCategory === 'all' ? allLoading : categoryLoading;
+  const faqItems: FAQItem[] = (activeCategory === 'all' ? allFAQs : categoryFAQs) ?? [];
+
+  // Toggle FAQ item expansion
+  const toggleItem = (id: string) => {
+    setExpandedItems(prev =>
+      prev.includes(id)
+        ? prev.filter(i => i !== id)
+        : [...prev, id]
     );
-  
+  };
+
+  // Filter FAQ items based on search query
+  const filteredFAQs = faqItems.filter(item =>
+    item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <main className="min-h-screen bg-beauty-beige">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 bg-beauty-brown">
         <div className="max-w-6xl mx-auto text-center">
@@ -67,7 +106,7 @@ export default function FAQ() {
           </p>
         </div>
       </section>
-      
+
       {/* Search & Filter Section */}
       <section className="py-8 px-4 bg-white sticky top-0 z-20 shadow-sm">
         <div className="max-w-4xl mx-auto">
@@ -84,17 +123,16 @@ export default function FAQ() {
                 className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-beauty-brown focus:border-beauty-brown"
               />
             </div>
-            
+
             <div className="flex flex-wrap justify-center gap-2 w-full md:w-1/2">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
-                  className={`px-3 py-1 rounded-full text-sm transition-all ${
-                    activeCategory === category.id
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${activeCategory === category.id
                       ? 'bg-beauty-brown text-white'
                       : 'bg-beauty-beige hover:bg-beauty-brown/20'
-                  }`}
+                    }`}
                 >
                   {category.name}
                 </button>
@@ -103,7 +141,7 @@ export default function FAQ() {
           </div>
         </div>
       </section>
-      
+
       {/* FAQ Items Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
@@ -114,7 +152,7 @@ export default function FAQ() {
           ) : filteredFAQs.length > 0 ? (
             <div className="space-y-4">
               {filteredFAQs.map((item) => (
-                <div 
+                <div
                   key={item.id}
                   className="bg-white rounded-lg shadow-sm overflow-hidden"
                 >
@@ -158,70 +196,25 @@ export default function FAQ() {
           )}
         </div>
       </section>
-      
+
       {/* Contact CTA Section */}
-      <section className="py-16 px-4 bg-beauty-gold/20">
+      <section className="py-24 px-4 bg-beauty-gold/20">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-serif text-beauty-brown mb-4">Still Have Questions?</h2>
+          <h2 className="text-3xl font-serif text-beauty-brown mb-4">Ready to Transform Your Look?</h2>
           <p className="text-gray-700 mb-8 max-w-2xl mx-auto">
-            If you couldn't find the answer you were looking for, feel free to contact me directly.
+            Book your appointment today and let us enhance your natural beauty.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="/contact" 
-              className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all"
-            >
-              Contact Me
-            </a>
-            <a 
-              href="/scheduling" 
+          <div className="flex justify-center">
+            <Link
+              href="/contact"
               className="bg-transparent border-2 border-beauty-brown text-beauty-brown px-8 py-3 rounded hover:bg-beauty-brown hover:text-white transition-all"
             >
-              Book Consultation
-            </a>
+              Contact Me
+            </Link>
           </div>
         </div>
       </section>
-      
-      <Footer />
     </main>
   );
 }
-function useFAQsByCategory(category: string): { data: FAQItem[] | null; isLoading: boolean } {
-    const [data, setData] = useState<FAQItem[] | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        const fetchFAQs = async () => {
-            setIsLoading(true);
-            try {
-                const { data: fetchedData, error } = await supabase
-                    .from('faqs')
-                    .select('*')
-                    .eq('category', category)
-                    .order('display_order', { ascending: true });
-
-                if (error) {
-                    console.error('Error fetching FAQs by category:', error);
-                    setData(null);
-                } else {
-                    setData(fetchedData);
-                }
-            } catch (err) {
-                console.error('Unexpected error fetching FAQs by category:', err);
-                setData(null);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        if (category) {
-            fetchFAQs();
-        } else {
-            setData(null);
-            setIsLoading(false);
-        }
-    }, [category]);
-
-    return { data, isLoading };
-}
