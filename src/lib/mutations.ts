@@ -1,100 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from './supabase';
 
-interface BookingData {
-  client_name: string;
-  client_email: string;
-  client_phone: string;
-  service_id: string;
-  service_name: string;
-  booking_date: string;
-  start_time: string;
-  end_time: string;
-  notes?: string;
-  client_id?: string;
-}
-
-export const useAddBooking = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (bookingData: BookingData) => {
-      // Get the authenticated user's ID if available
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      // Add the user ID to the booking data if they're logged in
-      if (user) {
-        bookingData.client_id = user.id;
-      }
-      
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert([bookingData])
-        .select();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      // Invalidate relevant queries after successful booking
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-    },
-  });
-};
-
-export const useUpdateBooking = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { data, error } = await supabase
-        .from('bookings')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      // Invalidate both the general bookings list and any specific booking queries
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-    },
-  });
-};
-
-export const useCancelBooking = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { data, error } = await supabase
-        .from('bookings')
-        .update({ 
-          status: 'cancelled',
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', id)
-        .select();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-    },
-  });
-};
-
 interface ContactFormData {
   name: string;
   email: string;
-  phone?: string;
-  subject?: string;
+  phone: string;
+  subject: string;
   message: string;
 }
 
-export const useSubmitContactForm = () => {
+export const useSubmitContactFormToSupabase = () => {
   return useMutation({
     mutationFn: async (formData: ContactFormData) => {
       const { data, error } = await supabase
@@ -154,4 +69,39 @@ export const useCreatePortfolioItem = () => {
   });
 };
 
-// Add more mutations as needed
+export function useSubmitContactForm() {
+  return useMutation({
+    mutationFn: async (data: ContactFormData) => {
+      // Get the endpoint from environment variables
+      const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
+      
+      if (!endpoint) {
+        throw new Error('Formspree endpoint not configured');
+      }
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          subject: data.subject,
+          message: data.message,
+          // Formspree special fields for better email formatting
+          _replyto: data.email,
+          _subject: `New Contact Form Submission: ${data.subject}`,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      
+      return response.json();
+    },
+  });
+}

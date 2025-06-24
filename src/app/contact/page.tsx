@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { useSubmitContactForm } from '../../lib/mutations';
 import Navbar from '@/components/Navbar';
-import { Mail, Phone, Instagram, Facebook } from 'lucide-react';
-import Link from 'next/link';
+import { Mail, Phone, Instagram, Facebook, AlertCircle } from 'lucide-react';
 
 interface FormData {
   name: string;
@@ -25,7 +24,7 @@ export default function Contact() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const { mutate: submitForm, isPending } = useSubmitContactForm();
+  const { mutate: submitForm, isPending, error, isError } = useSubmitContactForm();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -121,18 +120,34 @@ export default function Contact() {
               <div className="bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-serif text-beauty-brown mb-6">Send Me a Message</h2>
 
-                {submitted ? (
-                  <div className="bg-green-100 text-green-800 p-4 rounded">
+                {/* Success Message */}
+                {submitted && (
+                  <div className="bg-green-100 text-green-800 p-4 rounded mb-6">
                     <h3 className="font-medium">Thank You!</h3>
-                    <p>Your message has been sent. I'll respond as soon as possible.</p>
+                    <p>Your message has been sent successfully. I'll respond as soon as possible.</p>
                     <button
                       onClick={() => setSubmitted(false)}
-                      className="mt-4 text-beauty-brown underline"
+                      className="mt-4 text-beauty-brown underline hover:no-underline"
                     >
                       Send another message
                     </button>
                   </div>
-                ) : (
+                )}
+
+                {/* Error Message */}
+                {isError && (
+                  <div className="bg-red-100 text-red-800 p-4 rounded mb-6">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5" />
+                      <h3 className="font-medium">Something went wrong</h3>
+                    </div>
+                    <p className="mt-1">
+                      {error?.message || 'Unable to send your message. Please try again or contact me directly.'}
+                    </p>
+                  </div>
+                )}
+
+                {!submitted && (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
@@ -146,7 +161,8 @@ export default function Contact() {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-beauty-brown focus:border-beauty-brown"
+                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors"
+                          placeholder="Your full name"
                         />
                       </div>
 
@@ -161,7 +177,8 @@ export default function Contact() {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-beauty-brown focus:border-beauty-brown"
+                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors"
+                          placeholder="your@email.com"
                         />
                       </div>
                     </div>
@@ -177,7 +194,8 @@ export default function Contact() {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-beauty-brown focus:border-beauty-brown"
+                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors"
+                          placeholder="(000) 000-0000"
                         />
                       </div>
 
@@ -191,7 +209,7 @@ export default function Contact() {
                           value={formData.subject}
                           onChange={handleInputChange}
                           required
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-beauty-brown focus:border-beauty-brown"
+                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors"
                         >
                           <option value="">Select a subject</option>
                           <option value="Booking Inquiry">Booking Inquiry</option>
@@ -214,7 +232,8 @@ export default function Contact() {
                         onChange={handleInputChange}
                         required
                         rows={5}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-beauty-brown focus:border-beauty-brown"
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors resize-none"
+                        placeholder="Tell me about your event, preferred date, or any questions you have..."
                       />
                     </div>
 
@@ -222,7 +241,7 @@ export default function Contact() {
                       <button
                         type="submit"
                         disabled={isPending}
-                        className="bg-beauty-brown text-white px-6 py-3 rounded disabled:opacity-70 hover:bg-opacity-90 transition-all"
+                        className="bg-beauty-brown text-white px-8 py-3 rounded-md disabled:opacity-70 hover:bg-opacity-90 transition-all transform hover:scale-105 disabled:hover:scale-100 font-medium"
                       >
                         {isPending ? 'Sending...' : 'Send Message'}
                       </button>

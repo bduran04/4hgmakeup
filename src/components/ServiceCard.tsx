@@ -42,12 +42,6 @@ export default function ServiceCard({ service }: ServiceProps) {
         </div>
         <h3 className="text-xl font-serif text-beauty-brown mb-2">{service.title}</h3>
         <p className="text-gray-600 text-center mb-6">{service.description}</p>
-        <Link 
-          href={`/services/${service.title.toLowerCase().replace(/\s+/g, '-')}`}
-          className="text-beauty-brown text-sm tracking-wider border-b border-beauty-brown pb-1 hover:text-beauty-gold hover:border-beauty-gold transition-all"
-        >
-          LEARN MORE
-        </Link>
       </div>
     </div>
   );
