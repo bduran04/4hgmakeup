@@ -28,6 +28,18 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
+
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
@@ -83,37 +95,48 @@ export default function Navbar() {
         </div>
       </div>
       
-      {/* Mobile menu, show/hide based on menu state */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-beauty-beige">
-          <div className="p-4 flex justify-end">
+        <div className="fixed inset-0 z-50 bg-beauty-beige flex flex-col">
+          <div className="flex-shrink-0 p-4 flex justify-between items-center border-b border-beauty-brown border-opacity-20">
+            <Link href="/" onClick={() => setIsMenuOpen(false)}>
+              <Image 
+                src="/monogram-hq.svg" 
+                alt="4 His Glory Makeup Logo"
+                width={120}
+                height={48}
+                className="h-12 w-auto"
+              />
+            </Link>
             <button
               onClick={() => setIsMenuOpen(false)}
-              className="p-2 text-beauty-brown"
+              className="p-2 text-beauty-brown hover:text-beauty-gold transition-colors"
             >
               <span className="sr-only">Close menu</span>
               <X className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
-          <div className="flex flex-col items-center mt-8 space-y-8">
-            <Link href="/" className="mb-8">
-              <Image 
-                src="/monogram-hq.svg" 
-                alt="4 His Glory Makeup Logo"
-                width={180}
-                height={72}
-              />
-            </Link>
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="text-beauty-brown text-lg tracking-wider hover:text-beauty-gold transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
+          
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-4 py-8">
+              <div className="flex flex-col space-y-6">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-beauty-brown text-lg tracking-wider hover:text-beauty-gold transition-colors py-3 border-b border-beauty-brown border-opacity-10 text-center"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="mt-12 text-center">
+                <div className="text-beauty-brown text-sm opacity-70">
+                  © 2025 For His Glory Makeup. All rights reserved.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
