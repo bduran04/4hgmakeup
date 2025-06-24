@@ -1,13 +1,59 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FileText, Award, Heart, Star } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function About() {
+  const [aboutData, setAboutData] = useState({
+    bio: '',
+    bio_2: '',
+    about_image_1: '',
+    about_image_2: '',
+    isLoading: true
+  });
+
+  useEffect(() => {
+    const fetchAboutData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('admin_users')
+          .select('bio, bio_2, about_image_1, about_image_2')
+          .single();
+
+        if (error) throw error;
+
+        // Clean any extra quotes from the image URLs in the event there is unclean data
+        const cleanImage1 = data?.about_image_1 ? data.about_image_1.replace(/^["']|["']$/g, '') : '';
+        const cleanImage2 = data?.about_image_2 ? data.about_image_2.replace(/^["']|["']$/g, '') : '';
+
+        setAboutData({
+          bio: data?.bio || '',
+          bio_2: data?.bio_2 || '',
+          about_image_1: cleanImage1,
+          about_image_2: cleanImage2,
+          isLoading: false
+        });
+      } catch (error) {
+        console.error('Error fetching about data:', error);
+        // Set fallback data if fetch fails
+        setAboutData({
+          bio: 'With over 10 years of experience in the beauty industry, my journey as a makeup artist began with a simple passion for enhancing natural beauty. What started as a creative outlet soon blossomed into a fulfilling career where I get to help others feel confident and beautiful.\n\nI specialize in creating timeless, elegant looks for weddings, quinceañeras, special events, and photoshoots. My philosophy is that makeup should enhance your features, not mask them. Each face I work on is unique, and I take pride in customizing my approach to complement your individual beauty.\n\nI continually update my techniques and product knowledge to provide you with the best possible experience.',
+          bio_2: 'Every makeup session is a collaborative experience where I work closely with you to achieve your vision. I believe in creating a comfortable, relaxing environment where you can unwind and enjoy the transformation process.\n\nWhether it\'s your wedding day, a special photoshoot, or a milestone celebration, I\'m here to ensure you look and feel your absolute best. My attention to detail and commitment to excellence means every look is perfectly tailored to you.',
+          about_image_1: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067227/IMG_2974_t0paza.jpg',
+          about_image_2: '',
+          isLoading: false
+        });
+      }
+    };
+
+    fetchAboutData();
+  }, []);
+
   return (
     <main className="min-h-screen bg-beauty-beige">
       <Navbar />
@@ -22,44 +68,39 @@ export default function About() {
         </div>
       </section>
 
-      {/* Main About Section */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-12 items-center">
-            <div className="md:w-1/2">
-              <Image
-                src="https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067227/IMG_2974_t0paza.jpg"
-                alt="Natalie Villela, Makeup Artist"
-                width={500}
-                height={600}
-                className="rounded-lg shadow-lg object-cover"
-              />
-            </div>
-
-            <div className="md:w-1/2">
-              <h2 className="text-3xl font-serif text-beauty-brown mb-6">My Story</h2>
-              <p className="text-gray-700 mb-4">
-                With over 10 years of experience in the beauty industry, my journey as a makeup artist began with a simple passion for enhancing natural beauty. What started as a creative outlet soon blossomed into a fulfilling career where I get to help others feel confident and beautiful.
-              </p>
-              <p className="text-gray-700 mb-6">
-                I specialize in creating timeless, elegant looks for weddings, quinceañeras, special events, and photoshoots. My philosophy is that makeup should enhance your features, not mask them. Each face I work on is unique, and I take pride in customizing my approach to complement your individual beauty.
-              </p>
-              <p className="text-gray-700 mb-6">
-                I continually update my techniques and product knowledge to provide you with the best possible experience.
-              </p>
-
-              <div className="mt-8">
-                <Link
-                  href="/contact"
-                  className="bg-beauty-brown text-white px-8 py-3 rounded hover:bg-opacity-90 transition-all"
-                >
-                  Book an Appointment
-                </Link>
+      {/* Second Image Section (if about_image_2 exists) */}
+      {!aboutData.isLoading && aboutData.about_image_2 && (
+        <section className="py-16 px-4 bg-beauty-beige">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row-reverse gap-12 items-center">
+              <div className="md:w-1/2">
+                <Image
+                  src={aboutData.about_image_2}
+                  alt="Natalie Villela at work"
+                  width={500}
+                  height={600}
+                  className="rounded-lg shadow-lg object-cover"
+                />
+              </div>
+              <div className="md:w-1/2">
+                <h2 className="text-3xl font-serif text-beauty-brown mb-6">Behind the Scenes</h2>
+                {aboutData.isLoading ? (
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
+                  </div>
+                ) : (
+                  <div className="text-gray-700 whitespace-pre-line">
+                    {aboutData.bio_2 }
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Philosophy Section */}
       <section className="py-16 px-4 bg-beauty-beige">

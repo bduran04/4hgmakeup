@@ -12,6 +12,7 @@ const navigation = [
   { name: 'GALLERY', href: '/gallery' },
   { name: 'FAQ', href: '/faq' },
   { name: 'CONTACT', href: '/contact' },
+  { name: 'LOGIN', href: '/login' },
 ];
 
 export default function Navbar() {
