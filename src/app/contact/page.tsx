@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSubmitContactForm } from '../../lib/mutations';
 import Navbar from '@/components/Navbar';
 import { Mail, Phone, Instagram, Facebook, AlertCircle } from 'lucide-react';
@@ -13,7 +15,17 @@ interface FormData {
   message: string;
 }
 
+type FAQ = {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  display_order: number;
+  created_at: string;
+};
+
 export default function Contact() {
+  const supabase = createClientComponentClient();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -25,6 +37,26 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
 
   const { mutate: submitForm, isPending, error, isError } = useSubmitContactForm();
+
+  // Fetch first 4 FAQs
+  const { data: faqs, isLoading: isFaqsLoading } = useQuery({
+    queryKey: ["contactPageFaqs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("*")
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false })
+        .limit(4);
+        
+      if (error) {
+        console.error("Error fetching FAQs:", error);
+        throw error;
+      }
+      
+      return data as FAQ[];
+    }
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -254,7 +286,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* Dynamic FAQ Section */}
       <section className="py-16 px-4 bg-beauty-beige">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -264,43 +296,28 @@ export default function Contact() {
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-medium text-beauty-brown mb-2">
-                What services do you offer?
-              </h3>
-              <p className="text-gray-700">
-                I offer a wide range of makeup services including bridal, special event, quincenera, photoshoot, and makeup lessons. Visit my Services page for detailed information.
-              </p>
+          {isFaqsLoading ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Loading FAQs...</p>
             </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-medium text-beauty-brown mb-2">
-                How do I book an appointment?
-              </h3>
-              <p className="text-gray-700">
-                You can book directly through my website by sending me a message, call me at (469) 618-3804, send me an email at 4hisglorymakeup@gmail.com, or DM me via Instagram.
-              </p>
+          ) : faqs && faqs.length > 0 ? (
+            <div className="space-y-4">
+              {faqs.map((faq) => (
+                <div key={faq.id} className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-medium text-beauty-brown mb-2">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
             </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-medium text-beauty-brown mb-2">
-                Do you travel for events?
-              </h3>
-              <p className="text-gray-700">
-                Yes, I offer on-location services for weddings and special events. Travel fees may apply depending on the distance. Please note your location when booking.
-              </p>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No FAQs available at the moment.</p>
             </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-medium text-beauty-brown mb-2">
-                What brands do you use?
-              </h3>
-              <p className="text-gray-700">
-                We use high-quality, professional makeup brands including Charlotte Tilbury, NARS, Bobbi Brown, MAC, and other premium products that ensure long-lasting, camera-ready results.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
     </main>

@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Image from "next/image";
 
 // Types
 type Service = {
@@ -31,7 +30,6 @@ export default function ServiceManagement() {
   const [price, setPrice] = useState("");
   const [duration, setDuration] = useState("");
   const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
   const [featured, setFeatured] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error", text: string } | null>(null);
@@ -120,7 +118,7 @@ export default function ServiceManagement() {
             price: parseFloat(price),
             duration: parseInt(duration),
             category: category.trim(),
-            image_url: imageUrl.trim() || null,
+            image_url: null,
             featured: featured
           }])
           .select()
@@ -164,7 +162,7 @@ export default function ServiceManagement() {
       setIsLoading(true);
       
       try {
-        // Update service
+        // Update service (keeping existing image_url)
         const { data, error } = await supabase
           .from("services")
           .update({
@@ -173,7 +171,6 @@ export default function ServiceManagement() {
             price: parseFloat(price),
             duration: parseInt(duration),
             category: category.trim(),
-            image_url: imageUrl.trim() || null,
             featured: featured
           })
           .eq("id", selectedService.id)
@@ -255,7 +252,6 @@ export default function ServiceManagement() {
     setPrice(service.price.toString());
     setDuration(service.duration.toString());
     setCategory(service.category);
-    setImageUrl(service.image_url || "");
     setFeatured(service.featured);
     setIsEditing(true);
     
@@ -283,17 +279,8 @@ export default function ServiceManagement() {
     setPrice("");
     setDuration("");
     setCategory("");
-    setImageUrl("");
     setFeatured(false);
     setIsEditing(false);
-  };
-
-  // Handle image URL input with prompt
-  const handleImageUrlInput = () => {
-    const newUrl = prompt("Enter image URL:", imageUrl);
-    if (newUrl !== null) {
-      setImageUrl(newUrl);
-    }
   };
 
   // Handle going back to admin dashboard
@@ -421,40 +408,6 @@ export default function ServiceManagement() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="imageUrl" className="block text-sm font-medium mb-1 text-beauty-brown">Image URL (Optional)</label>
-                <div className="space-y-2">
-                  <input
-                    type="url"
-                    id="imageUrl"
-                    className="w-full p-2 border rounded focus:ring focus:ring-beauty-gold focus:border-beauty-gold"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleImageUrlInput}
-                    className="px-3 py-1 bg-beauty-beige text-beauty-brown rounded hover:bg-beauty-gold hover:text-white focus:outline-none focus:ring transition text-sm"
-                  >
-                    Browse URL
-                  </button>
-                </div>
-                
-                {imageUrl && (
-                  <div className="relative h-48 w-full mt-2 bg-beauty-beige rounded overflow-hidden">
-                    <Image
-                      src={imageUrl}
-                      alt="Service image preview"
-                      fill
-                      style={{ objectFit: "cover" }}
-                      className="rounded"
-                      onError={() => setMessage({ type: "error", text: "Failed to load image. Please check the URL." })}
-                    />
-                  </div>
-                )}
-              </div>
-
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -515,58 +468,38 @@ export default function ServiceManagement() {
             ) : filteredServices && filteredServices.length > 0 ? (
               <div className="divide-y">
                 {filteredServices.map((service) => (
-                  <div key={service.id} className="p-6 flex flex-col md:flex-row gap-4">
-                    <div className="md:w-1/4">
-                      {service.image_url ? (
-                        <div className="relative h-48 w-full bg-beauty-beige rounded overflow-hidden">
-                          <Image
-                            src={service.image_url}
-                            alt={service.title}
-                            fill
-                            style={{ objectFit: "cover" }}
-                            className="rounded"
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-48 w-full bg-beauty-beige flex items-center justify-center rounded">
-                          <span className="text-beauty-brown">No Image</span>
-                        </div>
+                  <div key={service.id} className="p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-lg font-medium text-beauty-brown">{service.title}</h3>
+                      {service.featured && (
+                        <span className="inline-block bg-beauty-gold text-white rounded-full px-3 py-1 text-xs font-semibold">
+                          FEATURED
+                        </span>
                       )}
                     </div>
+                    <p className="text-gray-600 my-2">{service.description}</p>
+                    <div className="flex flex-wrap items-center gap-4 mb-2">
+                      <p className="font-bold text-beauty-gold">${service.price.toFixed(2)}</p>
+                      <p className="text-sm text-beauty-brown">{service.duration} minutes</p>
+                      <span className="inline-block bg-beauty-brown bg-opacity-20 rounded-full px-3 py-1 text-sm font-semibold text-beauty-brown">
+                        {service.category}
+                      </span>
+                    </div>
                     
-                    <div className="md:w-3/4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-medium text-beauty-brown">{service.title}</h3>
-                        {service.featured && (
-                          <span className="inline-block bg-beauty-gold text-white rounded-full px-3 py-1 text-xs font-semibold">
-                            FEATURED
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-gray-600 my-2">{service.description}</p>
-                      <div className="flex flex-wrap items-center gap-4 mb-2">
-                        <p className="font-bold text-beauty-gold">${service.price.toFixed(2)}</p>
-                        <p className="text-sm text-beauty-brown">{service.duration} minutes</p>
-                        <span className="inline-block bg-beauty-brown bg-opacity-20 rounded-full px-3 py-1 text-sm font-semibold text-beauty-brown">
-                          {service.category}
-                        </span>
-                      </div>
+                    <div className="mt-4 flex space-x-2">
+                      <button
+                        onClick={() => handleEditService(service)}
+                        className="px-3 py-1 bg-beauty-beige text-beauty-brown border border-beauty-brown rounded hover:bg-gray-200 focus:outline-none focus:ring transition"
+                      >
+                        Edit
+                      </button>
                       
-                      <div className="mt-4 flex space-x-2">
-                        <button
-                          onClick={() => handleEditService(service)}
-                          className="px-3 py-1 bg-beauty-beige text-beauty-brown border border-beauty-brown rounded hover:bg-gray-200 focus:outline-none focus:ring transition"
-                        >
-                          Edit
-                        </button>
-                        
-                        <button
-                          onClick={() => handleDeleteService(service.id)}
-                          className="px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 focus:outline-none focus:ring transition"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => handleDeleteService(service.id)}
+                        className="px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 focus:outline-none focus:ring transition"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}

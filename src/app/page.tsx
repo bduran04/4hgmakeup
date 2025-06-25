@@ -8,7 +8,8 @@ import ServiceCard from '@/components/ServiceCard';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const carouselImages = [
+// Fallback carousel images in case database is empty
+const fallbackCarouselImages = [
   {
     src: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1745344480/IMG_2897_rqsnjs.png',
     alt: 'Bridal makeup',
@@ -47,8 +48,10 @@ const services = [
 ];
 
 export default function Home() {
+  const [carouselImages, setCarouselImages] = useState(fallbackCarouselImages);
+  const [isCarouselLoading, setIsCarouselLoading] = useState(true);
   const [previewImages, setPreviewImages] = useState<{ [key: string]: any }[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isGalleryLoading, setIsGalleryLoading] = useState(true);
   const [aboutData, setAboutData] = useState({
     bio: '',
     about_image_1: '',
@@ -56,21 +59,83 @@ export default function Home() {
   });
 
   useEffect(() => {
+    const fetchCarouselImages = async () => {
+      setIsCarouselLoading(true);
+      try {
+        // First, let's try to fetch the most recent images regardless of category
+        // We'll prioritize images based on creation date and limit to recent ones
+        const { data, error } = await supabase
+          .from('images')
+          .select('image_url, alt_text, title, category')
+          .order('created_at', { ascending: false })
+          .limit(6); // Get the 6 most recent images
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          // Transform database images to carousel format
+          const dynamicImages = data.map(img => ({
+            src: img.image_url,
+            alt: img.alt_text || img.title || 'Makeup artwork'
+          }));
+          setCarouselImages(dynamicImages);
+          console.log('Using recent images for carousel:', data.length, 'images found');
+        } else {
+          // Use fallback images if no images in database
+          console.log('No images in database, using fallback carousel images');
+          setCarouselImages(fallbackCarouselImages);
+        }
+      } catch (error) {
+        console.error('Error fetching carousel images:', error);
+        // Use fallback images on error
+        setCarouselImages(fallbackCarouselImages);
+      } finally {
+        setIsCarouselLoading(false);
+      }
+    };
+
     const fetchPreviewImages = async () => {
-      setIsLoading(true);
+      setIsGalleryLoading(true);
       try {
         const { data, error } = await supabase
           .from('images')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(4);
+          .limit(10); // Get 10 images to ensure we have enough
 
         if (error) throw error;
-        setPreviewImages(data || []);
+        
+        if (data && data.length > 0) {
+          let galleryImages;
+          
+          if (data.length >= 10) {
+            // If we have 10+ images, use images 7-10 for gallery (skip first 6 for carousel)
+            galleryImages = data.slice(6, 10);
+          } else if (data.length >= 6) {
+            // If we have 6-9 images, use what we can after carousel
+            galleryImages = data.slice(6);
+            
+            // If we don't have 4 gallery images, fill with earlier images
+            if (galleryImages.length < 4) {
+              const needed = 4 - galleryImages.length;
+              const additionalImages = data.slice(0, needed);
+              galleryImages = [...galleryImages, ...additionalImages];
+            }
+          } else {
+            // If we have fewer than 6 images, use all available (some overlap with carousel is okay)
+            galleryImages = data.slice(0, Math.min(4, data.length));
+          }
+          
+          setPreviewImages(galleryImages);
+          console.log(`Gallery preview: ${galleryImages.length} images displayed`);
+        } else {
+          setPreviewImages([]);
+        }
       } catch (error) {
         console.error('Error fetching preview images:', error);
+        setPreviewImages([]);
       } finally {
-        setIsLoading(false);
+        setIsGalleryLoading(false);
       }
     };
 
@@ -99,6 +164,7 @@ export default function Home() {
       }
     };
 
+    fetchCarouselImages();
     fetchPreviewImages();
     fetchAboutData();
   }, []);
@@ -107,9 +173,15 @@ export default function Home() {
     <main className="min-h-screen bg-beauty-beige">
       <Navbar />
 
-      {/* Hero Section with Carousel */}
+      {/* Hero Section with Dynamic Carousel */}
       <section className="relative w-full h-[500px]">
-        <Carousel images={carouselImages} />
+        {isCarouselLoading ? (
+          <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beauty-brown"></div>
+          </div>
+        ) : (
+          <Carousel images={carouselImages} />
+        )}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 bg-black/20">
           <h1 className="text-5xl md:text-6xl font-light text-white mb-4">
             <span className="block font-serif italic">For His Glory</span>
@@ -204,11 +276,11 @@ export default function Home() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {isLoading ? (
-              // Loading state
-              <div className="col-span-4 flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beauty-brown"></div>
-              </div>
+            {isGalleryLoading ? (
+              // Loading state - show 4 skeleton placeholders
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="h-48 md:h-56 bg-gray-200 rounded-lg animate-pulse"></div>
+              ))
             ) : previewImages.length > 0 ? (
               // Display images from the database
               previewImages.map((image) => (

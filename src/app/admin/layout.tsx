@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { Menu, X, Home, Image, Briefcase, LogOut } from "lucide-react";
+import { Menu, X, Home, Image, Briefcase, LogOut, HelpCircle } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -63,6 +63,11 @@ export default function AdminLayout({
       path: "/admin/gallery", 
       label: "Gallery",
       icon: Image
+    },
+       { 
+      path: "/admin/faqs", 
+      label: "FAQs",
+      icon: HelpCircle
     },
   ];
 
