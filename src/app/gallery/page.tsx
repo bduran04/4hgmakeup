@@ -90,14 +90,25 @@ export default function Gallery() {
                 <div
                   key={item.id}
                   className="group relative cursor-pointer overflow-hidden rounded-lg"
-                  onClick={() => handleImageClick(item.image_url, item.title, item.description)}
+                  onClick={() => handleImageClick(
+                    item.display_url || item.image_url || '', // Use display_url first, then fallback
+                    item.title, 
+                    item.alt_text || '' // Use alt_text as description fallback
+                  )}
                 >
                   <div className="aspect-square relative">
                     <Image
-                      src={item.image_url}
-                      alt={item.title}
+                      src={item.display_url || item.image_url || ''} // Use display_url first
+                      alt={item.alt_text || item.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        // Fallback to image_url if display_url fails
+                        const target = e.target as HTMLImageElement;
+                        if (item.image_url && target.src !== item.image_url) {
+                          target.src = item.image_url;
+                        }
+                      }}
                     />
                     <div className="absolute inset-0 bg-beauty-brown/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <span className="text-white text-lg font-medium">View</span>

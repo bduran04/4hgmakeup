@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
+import { Upload, Camera, Image as ImageIcon, X, Eye } from "lucide-react";
 
 // Types
 type GalleryImage = {
@@ -12,8 +13,244 @@ type GalleryImage = {
   title: string;
   category: string;
   image_url: string;
+  image_path?: string;
   alt_text: string;
   created_at: string;
+};
+
+// File Upload Component
+type FileUploadProps = {
+  onFileSelect: (file: File) => void;
+  onUrlInput: (url: string) => void;
+  currentImageUrl?: string;
+  isUploading?: boolean;
+};
+
+const FileUpload = ({ onFileSelect, onUrlInput, currentImageUrl, isUploading }: FileUploadProps) => {
+  const [uploadMode, setUploadMode] = useState<'file' | 'url'>('url'); // Default to URL mode
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onFileSelect(file);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      onFileSelect(file);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Upload Mode Toggle */}
+      <div className="flex border rounded-lg p-1 bg-gray-100">
+        <button
+          type="button"
+          onClick={() => setUploadMode('url')}
+          className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md transition-colors ${
+            uploadMode === 'url' 
+              ? 'bg-white text-beauty-brown shadow-sm' 
+              : 'text-gray-600 hover:text-beauty-brown'
+          }`}
+        >
+          <ImageIcon className="h-4 w-4" />
+          <span className="text-sm font-medium">Image URL</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setUploadMode('file')}
+          className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md transition-colors ${
+            uploadMode === 'file' 
+              ? 'bg-white text-beauty-brown shadow-sm' 
+              : 'text-gray-600 hover:text-beauty-brown'
+          }`}
+        >
+          <Upload className="h-4 w-4" />
+          <span className="text-sm font-medium">Upload File</span>
+        </button>
+      </div>
+
+      {uploadMode === 'url' ? (
+        <div className="space-y-3">
+          <input
+            type="url"
+            className="w-full p-3 border rounded-lg focus:ring focus:ring-beauty-gold focus:border-beauty-gold"
+            value={currentImageUrl || ""}
+            onChange={(e) => onUrlInput(e.target.value)}
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {/* File Drop Zone */}
+          <div
+            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+              dragActive 
+                ? 'border-beauty-brown bg-beauty-brown/5' 
+                : 'border-gray-300 hover:border-beauty-brown hover:bg-gray-50'
+            } ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileChange}
+              className="hidden"
+              disabled={isUploading}
+            />
+            
+            {isUploading ? (
+              <div className="flex flex-col items-center space-y-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-beauty-brown"></div>
+                <p className="text-sm text-gray-600">Uploading...</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-2">
+                <div className="flex space-x-2">
+                  <Upload className="h-8 w-8 text-gray-400" />
+                  <Camera className="h-8 w-8 text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">
+                    Drop an image here, or click to browse
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Supports JPG, PNG, GIF, WebP (max 10MB)
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile-specific buttons */}
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
+            <button
+              type="button"
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.setAttribute('capture', 'environment');
+                  fileInputRef.current.click();
+                }
+              }}
+              className="flex items-center justify-center space-x-2 py-3 px-4 bg-beauty-brown text-white rounded-lg hover:bg-beauty-gold transition-colors"
+              disabled={isUploading}
+            >
+              <Camera className="h-4 w-4" />
+              <span className="text-sm">Take Photo</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.removeAttribute('capture');
+                  fileInputRef.current.click();
+                }
+              }}
+              className="flex items-center justify-center space-x-2 py-3 px-4 bg-beauty-beige text-beauty-brown border border-beauty-brown rounded-lg hover:bg-gray-200 transition-colors"
+              disabled={isUploading}
+            >
+              <ImageIcon className="h-4 w-4" />
+              <span className="text-sm">Choose File</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Image Preview Component
+type ImagePreviewProps = {
+  imageUrl?: string;
+  file?: File;
+  className?: string;
+};
+
+const ImagePreview = ({ imageUrl, file, className = "" }: ImagePreviewProps) => {
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Generate preview URL for file uploads
+  useEffect(() => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else if (imageUrl) {
+      setPreviewUrl(imageUrl);
+    } else {
+      setPreviewUrl("");
+    }
+  }, [file, imageUrl]);
+
+  if (!previewUrl) {
+    return (
+      <div className={`border-2 border-dashed border-gray-300 rounded-lg p-8 text-center ${className}`}>
+        <Eye className="mx-auto h-12 w-12 text-gray-400" />
+        <p className="mt-2 text-sm text-gray-500">
+          Upload an image or enter URL to see preview
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      <div className="relative border rounded-lg overflow-hidden bg-gray-50">
+        {imageError ? (
+          <div className="flex items-center justify-center h-48 bg-red-50">
+            <div className="text-center">
+              <p className="mt-2 text-sm text-red-600">
+                Failed to load image
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center min-h-48 p-4">
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="max-w-full max-h-48 object-contain"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
+          </div>
+        )}
+        
+        {!imageLoaded && !imageError && (
+          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-beauty-brown"></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default function GalleryManagement() {
@@ -24,13 +261,42 @@ export default function GalleryManagement() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [altText, setAltText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error", text: string } | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const editFormRef = useRef<HTMLDivElement>(null);
+
+  // Utility function to get display URL
+  const getImageDisplayUrl = (image: GalleryImage): string => {
+    if (image.image_path) {
+      const { data } = supabase.storage
+        .from('portfolio-images')
+        .getPublicUrl(image.image_path);
+      return data.publicUrl;
+    }
+    return image.image_url || '';
+  };
+
+  // File upload function
+  const uploadFileToStorage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${category || 'uncategorized'}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from('portfolio-images')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) throw error;
+    return data.path;
+  };
 
   // Check if user is authenticated and an admin
   const { data: adminData, isLoading: isAdminLoading, error: adminError } = useQuery({
@@ -93,30 +359,54 @@ export default function GalleryManagement() {
       : galleryImages.filter(img => img.category === selectedCategory)
     : [];
 
-  // Create gallery image mutation
+  // Create gallery image mutation (updated to support file uploads)
   const createGalleryImage = useMutation({
     mutationFn: async () => {
-      if (!imageUrl.trim()) throw new Error("Please enter an image URL");
+      if (!selectedFile && !imageUrl.trim()) {
+        throw new Error("Please select a file or enter an image URL");
+      }
       if (!title.trim()) throw new Error("Please enter a title");
       if (!category.trim()) throw new Error("Please enter a category");
       if (!altText.trim()) throw new Error("Please enter alt text for accessibility");
       
       setIsLoading(true);
+      setIsUploading(true);
       
       try {
+        let finalImageUrl = imageUrl;
+        let imagePath = null;
+
+        // Upload file if selected
+        if (selectedFile) {
+          imagePath = await uploadFileToStorage(selectedFile);
+          const { data } = supabase.storage
+            .from('portfolio-images')
+            .getPublicUrl(imagePath);
+          finalImageUrl = data.publicUrl;
+        }
+
         // Create gallery entry
         const { data, error } = await supabase
           .from("images")
           .insert([{
             title: title.trim(),
             category: category.trim(),
-            image_url: imageUrl.trim(),
+            image_url: finalImageUrl,
+            image_path: imagePath,
             alt_text: altText.trim()
           }])
           .select()
           .single();
           
-        if (error) throw error;
+        if (error) {
+          // Clean up uploaded file if database insert fails
+          if (imagePath) {
+            await supabase.storage
+              .from('portfolio-images')
+              .remove([imagePath]);
+          }
+          throw error;
+        }
         
         return data;
       } catch (error) {
@@ -124,6 +414,7 @@ export default function GalleryManagement() {
         throw error;
       } finally {
         setIsLoading(false);
+        setIsUploading(false);
       }
     },
     onSuccess: () => {
@@ -141,25 +432,53 @@ export default function GalleryManagement() {
     }
   });
   
-  // Update gallery image mutation
+  // Update gallery image mutation (updated to support file uploads)
   const updateGalleryImage = useMutation({
     mutationFn: async () => {
       if (!selectedImage) throw new Error("No image selected");
-      if (!imageUrl.trim()) throw new Error("Please enter an image URL");
+      if (!selectedFile && !imageUrl.trim()) {
+        throw new Error("Please select a file or enter an image URL");
+      }
       if (!title.trim()) throw new Error("Please enter a title");
       if (!category.trim()) throw new Error("Please enter a category");
       if (!altText.trim()) throw new Error("Please enter alt text for accessibility");
       
       setIsLoading(true);
+      setIsUploading(true);
       
-      try {        
+      try {
+        let finalImageUrl = imageUrl;
+        let imagePath = selectedImage.image_path;
+
+        // Upload new file if selected
+        if (selectedFile) {
+          // Delete old file if it exists
+          if (selectedImage.image_path) {
+            try {
+              await supabase.storage
+                .from('portfolio-images')
+                .remove([selectedImage.image_path]);
+            } catch (error) {
+              console.warn('Failed to delete old image:', error);
+            }
+          }
+
+          // Upload new file
+          imagePath = await uploadFileToStorage(selectedFile);
+          const { data } = supabase.storage
+            .from('portfolio-images')
+            .getPublicUrl(imagePath);
+          finalImageUrl = data.publicUrl;
+        }
+        
         // Update gallery entry
         const { data, error } = await supabase
           .from("images")
           .update({
             title: title.trim(),
             category: category.trim(),
-            image_url: imageUrl.trim(),
+            image_url: finalImageUrl,
+            image_path: imagePath,
             alt_text: altText.trim()
           })
           .eq("id", selectedImage.id)
@@ -174,6 +493,7 @@ export default function GalleryManagement() {
         throw error;
       } finally {
         setIsLoading(false);
+        setIsUploading(false);
       }
     },
     onSuccess: () => {
@@ -191,16 +511,31 @@ export default function GalleryManagement() {
     }
   });
   
-  // Delete gallery image mutation
+  // Delete gallery image mutation (updated to handle storage cleanup)
   const deleteGalleryImage = useMutation({
     mutationFn: async (imageId: string) => {
       try {
+        // Find the image to get its path
+        const imageToDelete = galleryImages?.find(img => img.id === imageId);
+        
+        // Delete from database first
         const { error } = await supabase
           .from("images")
           .delete()
           .eq("id", imageId);
           
         if (error) throw error;
+
+        // Delete from storage if it exists
+        if (imageToDelete?.image_path) {
+          try {
+            await supabase.storage
+              .from('portfolio-images')
+              .remove([imageToDelete.image_path]);
+          } catch (storageError) {
+            console.warn('Failed to delete file from storage:', storageError);
+          }
+        }
         
         return { success: true };
       } catch (error) {
@@ -238,9 +573,10 @@ export default function GalleryManagement() {
     setSelectedImage(image);
     setTitle(image.title);
     setCategory(image.category);
-    setImageUrl(image.image_url);
+    setImageUrl(getImageDisplayUrl(image)); // Use display URL
     setAltText(image.alt_text);
     setIsEditing(true);
+    setSelectedFile(null); // Clear any selected file when editing
     
     // Scroll to edit form after a brief delay to allow state updates
     setTimeout(() => {
@@ -264,15 +600,29 @@ export default function GalleryManagement() {
     setTitle("");
     setCategory("");
     setImageUrl("");
+    setSelectedFile(null);
     setAltText("");
     setIsEditing(false);
   };
 
-  // Handle image URL input with prompt
+  // Handle file selection
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+    setImageUrl(""); // Clear URL when file is selected
+  };
+
+  // Handle URL input
+  const handleUrlInput = (url: string) => {
+    setImageUrl(url);
+    setSelectedFile(null); // Clear file when URL is entered
+  };
+
+  // Handle image URL input with prompt (keeping your existing functionality)
   const handleImageUrlInput = () => {
     const newUrl = prompt("Enter image URL:", imageUrl);
     if (newUrl !== null) {
       setImageUrl(newUrl);
+      setSelectedFile(null); // Clear file when URL is set
     }
   };
 
@@ -330,7 +680,7 @@ export default function GalleryManagement() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-          <div ref={editFormRef} className="bg-white rounded-lg shadow p-6">{/* Added ref here */}
+          <div ref={editFormRef} className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4 text-beauty-brown">{isEditing ? "Edit Gallery Image" : "Add Gallery Image"}</h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -373,44 +723,37 @@ export default function GalleryManagement() {
               </div>
               
               <div>
-                <label htmlFor="imageUrl" className="block text-sm font-medium mb-1 text-beauty-brown">Image URL *</label>
-                <div className="space-y-2">
-                  <input
-                    type="url"
-                    id="imageUrl"
-                    className="w-full p-2 border rounded focus:ring focus:ring-beauty-gold focus:border-beauty-gold"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    required
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleImageUrlInput}
-                    className="px-3 py-1 bg-beauty-beige text-beauty-brown rounded hover:bg-beauty-gold hover:text-white focus:outline-none focus:ring transition text-sm"
-                  >
-                    Browse URL
-                  </button>
-                </div>
+                <label className="block text-sm font-medium mb-2 text-beauty-brown">Image *</label>
                 
-                {imageUrl && (
-                  <div className="relative h-48 w-full mt-2 bg-beauty-beige rounded overflow-hidden">
-                    <Image
-                      src={imageUrl}
-                      alt="Image preview"
-                      fill
-                      style={{ objectFit: "cover" }}
-                      className="rounded"
-                      onError={() => setMessage({ type: "error", text: "Failed to load image. Please check the URL." })}
-                    />
-                  </div>
-                )}
+                {/* File Upload Component */}
+                <FileUpload 
+                  onFileSelect={handleFileSelect}
+                  onUrlInput={handleUrlInput}
+                  currentImageUrl={imageUrl}
+                  isUploading={isUploading}
+                />
+
+                {/* Keep your existing Browse URL button for compatibility */}
+                <button
+                  type="button"
+                  onClick={handleImageUrlInput}
+                  className="mt-2 px-3 py-1 bg-beauty-beige text-beauty-brown rounded hover:bg-beauty-gold hover:text-white focus:outline-none focus:ring transition text-sm"
+                >
+                  Browse URL (Alternative)
+                </button>
+                
+                {/* Image Preview */}
+                <ImagePreview 
+                  imageUrl={imageUrl}
+                  file={selectedFile ?? undefined}
+                  className="mt-4"
+                />
               </div>
               
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || isUploading}
                   className="px-4 py-2 bg-beauty-brown text-white rounded hover:bg-beauty-gold focus:outline-none focus:ring transition disabled:opacity-50"
                 >
                   {isLoading ? "Saving..." : isEditing ? "Update Image" : "Add Image"}
@@ -459,10 +802,17 @@ export default function GalleryManagement() {
                   <div key={image.id} className="border rounded overflow-hidden bg-beauty-beige">
                     <div className="relative h-64 w-full">
                       <Image
-                        src={image.image_url}
+                        src={getImageDisplayUrl(image)} // Use display URL function
                         alt={image.alt_text || image.title}
                         fill
                         style={{ objectFit: "cover" }}
+                        onError={(e) => {
+                          // Fallback to image_url if display_url fails
+                          const target = e.target as HTMLImageElement;
+                          if (image.image_url && target.src !== image.image_url) {
+                            target.src = image.image_url;
+                          }
+                        }}
                       />
                     </div>
                     

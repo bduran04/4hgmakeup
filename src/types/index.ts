@@ -3,11 +3,15 @@ export interface NavLink {
     path: string;
   }
   
-  export interface GalleryImage {
-    src: string;
-    alt?: string;
-    category?: string;
-  }
+export interface GalleryImage {
+  id: string;
+  title: string;
+  category: string;
+  image_url?: string;
+  image_path?: string;
+  alt_text: string;
+  created_at: string;
+}
   
   export interface TestimonialProps {
     stars: number;

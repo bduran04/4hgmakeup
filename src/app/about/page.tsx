@@ -4,9 +4,19 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { FileText, Award, Heart, Star } from 'lucide-react';
+import { Award, Heart, Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+
+// Utility function to get display URL (prioritizes storage over direct URL)
+const getImageDisplayUrl = (image: { image_url?: string; image_path?: string }): string => {
+  if (image.image_path) {
+    const { data } = supabase.storage
+      .from('portfolio-images')
+      .getPublicUrl(image.image_path);
+    return data.publicUrl;
+  }
+  return image.image_url || '';
+};
 
 export default function About() {
   const [aboutData, setAboutData] = useState({
@@ -20,27 +30,69 @@ export default function About() {
   useEffect(() => {
     const fetchAboutData = async () => {
       try {
-        const { data, error } = await supabase
+        console.log('Fetching about data...');
+        
+        // First, try to get data from the specific email user
+        const { data: primaryUser, error: primaryError } = await supabase
           .from('admin_users')
-          .select('bio, bio_2, about_image_1, about_image_2')
+          .select('bio, bio_2, about_image_1, about_image_2, about_image_1_path, about_image_2_path, email')
+          .eq('email', '4hisglorymakeup@gmail.com')
           .single();
 
-        if (error) throw error;
+        let userData = null;
 
-        // Clean any extra quotes from the image URLs in the event there is unclean data
-        const cleanImage1 = data?.about_image_1 ? data.about_image_1.replace(/^["']|["']$/g, '') : '';
-        const cleanImage2 = data?.about_image_2 ? data.about_image_2.replace(/^["']|["']$/g, '') : '';
+        if (primaryUser && !primaryError) {
+          console.log('Found primary user with specific email');
+          userData = primaryUser;
+        } else {
+          console.log('Primary user not found, trying fallback admin user...');
+          
+          // If specific email user doesn't exist, get any admin user
+          const { data: fallbackUser, error: fallbackError } = await supabase
+            .from('admin_users')
+            .select('bio, bio_2, about_image_1, about_image_2, about_image_1_path, about_image_2_path, email')
+            .limit(1)
+            .single();
 
-        setAboutData({
-          bio: data?.bio || '',
-          bio_2: data?.bio_2 || '',
-          about_image_1: cleanImage1,
-          about_image_2: cleanImage2,
-          isLoading: false
-        });
+          if (fallbackUser && !fallbackError) {
+            console.log('Using fallback admin user:', fallbackUser.email);
+            userData = fallbackUser;
+          } else {
+            console.log('No admin users found, using fallback data');
+            throw new Error('No admin users found');
+          }
+        }
+
+        if (userData) {
+          // Clean any extra quotes from the image URLs in the event there is unclean data
+          const cleanImage1 = userData?.about_image_1 ? userData.about_image_1.replace(/^["']|["']$/g, '') : '';
+          const cleanImage2 = userData?.about_image_2 ? userData.about_image_2.replace(/^["']|["']$/g, '') : '';
+
+          // Get proper display URLs for images (handles both storage and direct URLs)
+          const displayImage1 = getImageDisplayUrl({
+            image_url: cleanImage1,
+            image_path: userData?.about_image_1_path
+          });
+
+          const displayImage2 = getImageDisplayUrl({
+            image_url: cleanImage2,
+            image_path: userData?.about_image_2_path
+          });
+
+          setAboutData({
+            bio: userData?.bio || '',
+            bio_2: userData?.bio_2 || '',
+            about_image_1: displayImage1,
+            about_image_2: displayImage2,
+            isLoading: false
+          });
+
+          console.log('About data loaded successfully from user:', userData.email);
+        }
       } catch (error) {
         console.error('Error fetching about data:', error);
-        // Set fallback data if fetch fails
+        
+        // Set fallback data if all database queries fail
         setAboutData({
           bio: 'With over 10 years of experience in the beauty industry, my journey as a makeup artist began with a simple passion for enhancing natural beauty. What started as a creative outlet soon blossomed into a fulfilling career where I get to help others feel confident and beautiful.\n\nI specialize in creating timeless, elegant looks for weddings, quinceañeras, special events, and photoshoots. My philosophy is that makeup should enhance your features, not mask them. Each face I work on is unique, and I take pride in customizing my approach to complement your individual beauty.\n\nI continually update my techniques and product knowledge to provide you with the best possible experience.',
           bio_2: 'Every makeup session is a collaborative experience where I work closely with you to achieve your vision. I believe in creating a comfortable, relaxing environment where you can unwind and enjoy the transformation process.\n\nWhether it\'s your wedding day, a special photoshoot, or a milestone celebration, I\'m here to ensure you look and feel your absolute best. My attention to detail and commitment to excellence means every look is perfectly tailored to you.',
@@ -48,6 +100,8 @@ export default function About() {
           about_image_2: '',
           isLoading: false
         });
+        
+        console.log('Using hardcoded fallback data');
       }
     };
 
@@ -68,6 +122,51 @@ export default function About() {
         </div>
       </section>
 
+      {/* Main Bio Section with Primary Image */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-12 items-center">
+            <div className="md:w-1/2">
+              {aboutData.isLoading ? (
+                <div className="w-[500px] h-[600px] bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beauty-brown"></div>
+                </div>
+              ) : (
+                <Image
+                  src={aboutData.about_image_1 || 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067227/IMG_2974_t0paza.jpg'}
+                  alt="Natalie Villela"
+                  width={500}
+                  height={600}
+                  className="rounded-lg shadow-lg object-cover"
+                  onError={(e) => {
+                    // Fallback to default image if the loaded image fails
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067227/IMG_2974_t0paza.jpg') {
+                      target.src = 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067227/IMG_2974_t0paza.jpg';
+                    }
+                  }}
+                />
+              )}
+            </div>
+            <div className="md:w-1/2">
+              <h2 className="text-3xl font-serif text-beauty-brown mb-6">My Story</h2>
+              {aboutData.isLoading ? (
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
+                </div>
+              ) : (
+                <div className="text-gray-700 whitespace-pre-line">
+                  {aboutData.bio || 'With over 10 years of experience in the beauty industry, my journey as a makeup artist began with a simple passion for enhancing natural beauty. What started as a creative outlet soon blossomed into a fulfilling career where I get to help others feel confident and beautiful.\n\nI specialize in creating timeless, elegant looks for weddings, quinceañeras, special events, and photoshoots. My philosophy is that makeup should enhance your features, not mask them. Each face I work on is unique, and I take pride in customizing my approach to complement your individual beauty.\n\nI continually update my techniques and product knowledge to provide you with the best possible experience.'}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Second Image Section (if about_image_2 exists) */}
       {!aboutData.isLoading && aboutData.about_image_2 && (
         <section className="py-16 px-4 bg-beauty-beige">
@@ -80,22 +179,20 @@ export default function About() {
                   width={500}
                   height={600}
                   className="rounded-lg shadow-lg object-cover"
+                  onError={(e) => {
+                    // Hide the section if the second image fails to load
+                    const section = e.currentTarget.closest('section');
+                    if (section) {
+                      section.style.display = 'none';
+                    }
+                  }}
                 />
               </div>
               <div className="md:w-1/2">
                 <h2 className="text-3xl font-serif text-beauty-brown mb-6">Behind the Scenes</h2>
-                {aboutData.isLoading ? (
-                  <div className="space-y-4">
-                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
-                  </div>
-                ) : (
-                  <div className="text-gray-700 whitespace-pre-line">
-                    {aboutData.bio_2 }
-                  </div>
-                )}
+                <div className="text-gray-700 whitespace-pre-line">
+                  {aboutData.bio_2 || 'Every makeup session is a collaborative experience where I work closely with you to achieve your vision. I believe in creating a comfortable, relaxing environment where you can unwind and enjoy the transformation process.\n\nWhether it\'s your wedding day, a special photoshoot, or a milestone celebration, I\'m here to ensure you look and feel your absolute best. My attention to detail and commitment to excellence means every look is perfectly tailored to you.'}
+                </div>
               </div>
             </div>
           </div>
@@ -278,7 +375,6 @@ export default function About() {
           </div>
         </div>
       </section>
-
     </main>
   );
 }

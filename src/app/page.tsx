@@ -8,6 +8,35 @@ import ServiceCard from '@/components/ServiceCard';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+// Types
+type GalleryImage = {
+  id: string;
+  title: string;
+  category: string;
+  image_url?: string;
+  image_path?: string;
+  alt_text: string;
+  created_at: string;
+};
+
+type AboutData = {
+  bio: string;
+  about_image_1: string;
+  about_image_1_path?: string;
+  isLoading: boolean;
+};
+
+// Utility function to get display URL (prioritizes storage over direct URL)
+const getImageDisplayUrl = (image: { image_url?: string; image_path?: string }): string => {
+  if (image.image_path) {
+    const { data } = supabase.storage
+      .from('portfolio-images')
+      .getPublicUrl(image.image_path);
+    return data.publicUrl;
+  }
+  return image.image_url || '';
+};
+
 // Fallback carousel images in case database is empty
 const fallbackCarouselImages = [
   {
@@ -50,9 +79,9 @@ const services = [
 export default function Home() {
   const [carouselImages, setCarouselImages] = useState(fallbackCarouselImages);
   const [isCarouselLoading, setIsCarouselLoading] = useState(true);
-  const [previewImages, setPreviewImages] = useState<{ [key: string]: any }[]>([]);
+  const [previewImages, setPreviewImages] = useState<GalleryImage[]>([]);
   const [isGalleryLoading, setIsGalleryLoading] = useState(true);
-  const [aboutData, setAboutData] = useState({
+  const [aboutData, setAboutData] = useState<AboutData>({
     bio: '',
     about_image_1: '',
     isLoading: true
@@ -62,24 +91,26 @@ export default function Home() {
     const fetchCarouselImages = async () => {
       setIsCarouselLoading(true);
       try {
-        // First, let's try to fetch the most recent images regardless of category
-        // We'll prioritize images based on creation date and limit to recent ones
+        // Fetch the oldest images from the database (earliest first)
         const { data, error } = await supabase
           .from('images')
-          .select('image_url, alt_text, title, category')
-          .order('created_at', { ascending: false })
-          .limit(6); // Get the 6 most recent images
+          .select('image_url, image_path, alt_text, title, category, created_at')
+          .order('created_at', { ascending: true }) // Get oldest images first
+          .limit(8); // Get 8 oldest images for carousel
 
         if (error) throw error;
         
         if (data && data.length > 0) {
-          // Transform database images to carousel format
+          // Transform database images to carousel format with proper URLs
           const dynamicImages = data.map(img => ({
-            src: img.image_url,
-            alt: img.alt_text || img.title || 'Makeup artwork'
+            src: getImageDisplayUrl(img),
+            alt: img.alt_text || img.title || 'Portfolio makeup work'
           }));
+          
           setCarouselImages(dynamicImages);
-          console.log('Using recent images for carousel:', data.length, 'images found');
+          console.log(`Using ${data.length} oldest images for carousel`);
+          console.log('Oldest image date:', data[0]?.created_at);
+          console.log('Most recent of the oldest:', data[data.length - 1]?.created_at);
         } else {
           // Use fallback images if no images in database
           console.log('No images in database, using fallback carousel images');
@@ -97,37 +128,18 @@ export default function Home() {
     const fetchPreviewImages = async () => {
       setIsGalleryLoading(true);
       try {
+        // Get recent images for gallery preview (keeping this as newest for contrast)
         const { data, error } = await supabase
           .from('images')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10); // Get 10 images to ensure we have enough
+          .order('created_at', { ascending: false }) // Gallery preview shows newest work
+          .limit(4); // Just get 4 recent images for gallery preview
 
         if (error) throw error;
         
         if (data && data.length > 0) {
-          let galleryImages;
-          
-          if (data.length >= 10) {
-            // If we have 10+ images, use images 7-10 for gallery (skip first 6 for carousel)
-            galleryImages = data.slice(6, 10);
-          } else if (data.length >= 6) {
-            // If we have 6-9 images, use what we can after carousel
-            galleryImages = data.slice(6);
-            
-            // If we don't have 4 gallery images, fill with earlier images
-            if (galleryImages.length < 4) {
-              const needed = 4 - galleryImages.length;
-              const additionalImages = data.slice(0, needed);
-              galleryImages = [...galleryImages, ...additionalImages];
-            }
-          } else {
-            // If we have fewer than 6 images, use all available (some overlap with carousel is okay)
-            galleryImages = data.slice(0, Math.min(4, data.length));
-          }
-          
-          setPreviewImages(galleryImages);
-          console.log(`Gallery preview: ${galleryImages.length} images displayed`);
+          setPreviewImages(data);
+          console.log(`Gallery preview: ${data.length} recent images displayed`);
         } else {
           setPreviewImages([]);
         }
@@ -143,14 +155,20 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('admin_users')
-          .select('bio, about_image_1')
+          .select('bio, about_image_1, about_image_1_path')
           .single(); // Assuming you have only one admin user
 
         if (error) throw error;
         
+        // Get the proper display URL for the about image
+        const aboutImageUrl = getImageDisplayUrl({
+          image_url: data?.about_image_1,
+          image_path: data?.about_image_1_path
+        });
+        
         setAboutData({
           bio: data?.bio || '',
-          about_image_1: data?.about_image_1 || '',
+          about_image_1: aboutImageUrl,
           isLoading: false
         });
       } catch (error) {
@@ -213,6 +231,13 @@ export default function Home() {
                   width={500}
                   height={600}
                   className="rounded-lg shadow-lg"
+                  onError={(e) => {
+                    // Fallback to default image if the loaded image fails
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg') {
+                      target.src = 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg';
+                    }
+                  }}
                 />
               )}
             </div>
@@ -282,15 +307,22 @@ export default function Home() {
                 <div key={index} className="h-48 md:h-56 bg-gray-200 rounded-lg animate-pulse"></div>
               ))
             ) : previewImages.length > 0 ? (
-              // Display images from the database
+              // Display images from the database with proper URLs
               previewImages.map((image) => (
                 <div key={image.id} className="relative group overflow-hidden rounded-lg h-48 md:h-56">
                   <Image
-                    src={image.image_url}
+                    src={getImageDisplayUrl(image)}
                     alt={image.alt_text || image.title}
                     fill
                     sizes="(max-width: 768px) 45vw, 22vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      // Fallback to image_url if storage URL fails
+                      const target = e.target as HTMLImageElement;
+                      if (image.image_url && target.src !== image.image_url) {
+                        target.src = image.image_url;
+                      }
+                    }}
                   />
                   <div className="absolute inset-0 bg-beauty-brown/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <span className="text-white text-lg font-medium">View</span>
