@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSubmitContactForm } from '../../lib/mutations';
 import Navbar from '@/components/Navbar';
-import { Mail, Phone, Instagram, Facebook, AlertCircle } from 'lucide-react';
+import { Mail, Phone, Instagram, Facebook, AlertCircle, Calendar, ExternalLink, Clock, MapPin } from 'lucide-react';
 
 interface FormData {
   name: string;
@@ -89,8 +89,42 @@ export default function Contact() {
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">Contact Me</h1>
           <p className="text-beauty-beige text-lg max-w-2xl mx-auto">
-            Have questions or ready to book an appointment? Get in touch with me.
+            Ready to book an appointment or have questions? Let's connect.
           </p>
+        </div>
+      </section>
+
+      {/* Booking CTA Section */}
+      <section className="py-12 px-4 bg-beauty-gold/20">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-beauty-gold/30">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-beauty-brown/10 p-3 rounded-full">
+                <Calendar className="text-beauty-brown h-8 w-8" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-serif text-beauty-brown mb-4">Book Your Appointment Online</h2>
+            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+              Ready to schedule your makeup session? Use my online booking system to view available times, 
+              select your services, and secure your appointment instantly.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a
+                href="https://4hisglorymakeup.square.site/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 bg-beauty-brown text-white px-8 py-4 rounded-lg hover:bg-beauty-gold transition-all transform hover:scale-105 font-medium text-lg shadow-md"
+              >
+                <Calendar className="h-5 w-5" />
+                <span>Book Now Online</span>
+                <ExternalLink className="h-4 w-4" />
+              </a>
+              <div className="text-sm text-gray-600 flex items-center space-x-2">
+                <Clock className="h-4 w-4" />
+                <span>Instant confirmation • Secure booking</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -109,7 +143,12 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-medium text-beauty-brown">Phone</h3>
-                    <p className="text-gray-700">(469) 618-3804</p>
+                    <a 
+                      href="tel:(469) 618-3804"
+                      className="text-gray-700 hover:text-beauty-brown transition-colors"
+                    >
+                      (469) 618-3804
+                    </a>
                   </div>
                 </div>
 
@@ -119,7 +158,40 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-medium text-beauty-brown">Email</h3>
-                    <p className="text-gray-700">4hisglorymakeup@gmail.com</p>
+                    <a 
+                      href="mailto:4hisglorymakeup@gmail.com"
+                      className="text-gray-700 hover:text-beauty-brown transition-colors"
+                    >
+                      4hisglorymakeup@gmail.com
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="bg-beauty-brown/10 p-3 rounded-full">
+                    <Calendar className="text-beauty-brown h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-beauty-brown">Online Booking</h3>
+                    <a 
+                      href="https://4hisglorymakeup.square.site/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-700 hover:text-beauty-brown transition-colors inline-flex items-center space-x-1"
+                    >
+                      <span>4hisglorymakeup.square.site</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="bg-beauty-brown/10 p-3 rounded-full">
+                    <MapPin className="text-beauty-brown h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-beauty-brown">Service Area</h3>
+                    <p className="text-gray-700">Dallas-Fort Worth Metroplex</p>
                   </div>
                 </div>
               </div>
@@ -132,6 +204,7 @@ export default function Contact() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-beauty-brown/10 p-3 rounded-full hover:bg-beauty-brown hover:text-white transition-all"
+                    aria-label="Follow on Instagram"
                   >
                     <Instagram className="h-5 w-5" />
                   </a>
@@ -140,6 +213,7 @@ export default function Contact() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-beauty-brown/10 p-3 rounded-full hover:bg-beauty-brown hover:text-white transition-all"
+                    aria-label="Follow on Facebook"
                   >
                     <Facebook className="h-5 w-5" />
                   </a>
@@ -150,19 +224,34 @@ export default function Contact() {
             {/* Contact Form */}
             <div className="md:w-2/3">
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h2 className="text-2xl font-serif text-beauty-brown mb-6">Send Me a Message</h2>
+                <h2 className="text-2xl font-serif text-beauty-brown mb-2">Send Me a Message</h2>
+                <p className="text-gray-600 mb-6 text-sm">
+                  Have questions before booking? Want to discuss a custom package? Reach out below.
+                </p>
 
                 {/* Success Message */}
                 {submitted && (
                   <div className="bg-green-100 text-green-800 p-4 rounded mb-6">
                     <h3 className="font-medium">Thank You!</h3>
                     <p>Your message has been sent successfully. I'll respond as soon as possible.</p>
-                    <button
-                      onClick={() => setSubmitted(false)}
-                      className="mt-4 text-beauty-brown underline hover:no-underline"
-                    >
-                      Send another message
-                    </button>
+                    <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={() => setSubmitted(false)}
+                        className="text-beauty-brown underline hover:no-underline text-sm"
+                      >
+                        Send another message
+                      </button>
+                      <span className="text-gray-500 text-sm">or</span>
+                      <a
+                        href="https://4hisglorymakeup.square.site/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1 text-beauty-brown hover:text-beauty-gold transition-colors text-sm font-medium"
+                      >
+                        <span>Book an appointment now</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                   </div>
                 )}
 
@@ -244,9 +333,10 @@ export default function Contact() {
                           className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors"
                         >
                           <option value="">Select a subject</option>
-                          <option value="Booking Inquiry">Booking Inquiry</option>
-                          <option value="Service Question">Service Question</option>
-                          <option value="Pricing">Pricing</option>
+                          <option value="General Question">General Question</option>
+                          <option value="Service Inquiry">Service Inquiry</option>
+                          <option value="Pricing Information">Pricing Information</option>
+                          <option value="Custom Package">Custom Package</option>
                           <option value="Collaboration">Collaboration</option>
                           <option value="Other">Other</option>
                         </select>
@@ -265,8 +355,23 @@ export default function Contact() {
                         required
                         rows={5}
                         className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-beauty-brown focus:border-beauty-brown transition-colors resize-none"
-                        placeholder="Tell me about your event, preferred date, or any questions you have..."
+                        placeholder="Tell me about your event, questions about services, or any special requirements..."
                       />
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-800">
+                        <strong>Need to book right away?</strong> Use my{' '}
+                        <a
+                          href="https://4hisglorymakeup.square.site/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:no-underline"
+                        >
+                          online booking system
+                        </a>
+                        {' '}for instant confirmation and to view real-time availability.
+                      </p>
                     </div>
 
                     <div className="flex justify-end">
