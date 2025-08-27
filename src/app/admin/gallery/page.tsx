@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 import { Upload, Camera, Image as ImageIcon, X, Eye } from "lucide-react";
+import { fetchAdminDataByUserId } from "@/lib/utils/admin-data";
 
 // Types
 type GalleryImage = {
@@ -309,19 +310,27 @@ export default function GalleryManagement() {
         throw new Error("Not authenticated");
       }
       
-      // Check if user is admin
-      const { data: adminUser, error: adminError } = await supabase
+      // Check if user is admin and get their data
+      const { data: adminUsers, error: adminError } = await supabase
         .from("admin_users")
         .select("*")
-        .eq("user_id", session.user.id)
-        .single();
+        .eq("user_id", session.user.id);
+        
+      const adminUser = adminUsers && adminUsers.length > 0 ? adminUsers[0] : null;
         
       if (adminError || !adminUser) {
         router.push("/");
         throw new Error("Not authorized as admin");
       }
       
-      return adminUser;
+      // Fetch admin data using utility function
+      const adminData = await fetchAdminDataByUserId(session.user.id);
+      
+      if (!adminData) {
+        throw new Error("Failed to fetch admin data");
+      }
+      
+      return { ...adminUser, ...adminData };
     },
     retry: false
   });

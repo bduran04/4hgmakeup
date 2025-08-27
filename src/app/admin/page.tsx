@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 import { Upload, Camera, Image as ImageIcon, Eye, Settings, Users, FileImage } from "lucide-react";
+import { fetchAdminDataByUserId } from "@/lib/utils/admin-data";
 
 type AdminUser = {
   id: string;
@@ -289,31 +290,39 @@ export default function AdminDashboard() {
         throw new Error("Not authenticated");
       }
       
-      // Check if user is admin
-      const { data: adminUser, error: adminError } = await supabase
+      // Check if user is admin and get their data
+      const { data: adminUsers, error: adminError } = await supabase
         .from("admin_users")
         .select("*")
-        .eq("user_id", session.user.id)
-        .single();
+        .eq("user_id", session.user.id);
+        
+      const adminUser = adminUsers && adminUsers.length > 0 ? adminUsers[0] : null;
         
       if (adminError || !adminUser) {
         router.push("/");
         throw new Error("Not authorized as admin");
       }
       
+      // Fetch admin data using utility function
+      const adminData = await fetchAdminDataByUserId(session.user.id);
+      
+      if (!adminData) {
+        throw new Error("Failed to fetch admin data");
+      }
+      
       // Set initial values
-      if (adminUser.bio) setBio(adminUser.bio);
-      if (adminUser.bio_2) setBio2(adminUser.bio_2);
-      if (adminUser.about_image_1) setAboutImage1Url(adminUser.about_image_1);
-      if (adminUser.about_image_2) setAboutImage2Url(adminUser.about_image_2);
+      if (adminData.bio) setBio(adminData.bio);
+      if (adminData.bio_2) setBio2(adminData.bio_2);
+      if (adminData.about_image_1) setAboutImage1Url(adminData.about_image_1);
+      if (adminData.about_image_2) setAboutImage2Url(adminData.about_image_2);
       
       // Track initial values for change detection
-      const initialBio = adminUser.bio || "";
-      const initialBio2 = adminUser.bio_2 || "";
-      const initialImage1 = adminUser.about_image_1 || "";
-      const initialImage2 = adminUser.about_image_2 || "";
+      const initialBio = adminData.bio || "";
+      const initialBio2 = adminData.bio_2 || "";
+      const initialImage1 = adminData.about_image_1 || "";
+      const initialImage2 = adminData.about_image_2 || "";
       
-      return { ...adminUser, initialBio, initialBio2, initialImage1, initialImage2 } as AdminUser & {
+      return { ...adminUser, ...adminData, initialBio, initialBio2, initialImage1, initialImage2 } as AdminUser & {
         initialBio: string;
         initialBio2: string; 
         initialImage1: string;

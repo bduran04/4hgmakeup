@@ -7,6 +7,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Menu, X, Home, Image, Briefcase, LogOut, HelpCircle } from "lucide-react";
+import { fetchAdminDataByUserId } from "@/lib/utils/admin-data";
 
 export default function AdminLayout({
   children,
@@ -29,19 +30,33 @@ export default function AdminLayout({
         throw new Error("Not authenticated");
       }
       
-      // Check if user is admin
-      const { data: adminUser, error: adminError } = await supabase
+      // Check if user is admin and get their data
+      const { data: adminUsers, error: adminError } = await supabase
         .from("admin_users")
         .select("*")
-        .eq("user_id", session.user.id)
-        .single();
+        .eq("user_id", session.user.id);
+        
+      const adminUser = adminUsers && adminUsers.length > 0 ? adminUsers[0] : null;
         
       if (adminError || !adminUser) {
         router.push("/");
         throw new Error("Not authorized as admin");
       }
       
-      return adminUser;
+      // Check if user has one of the allowed admin emails
+      if (adminUser.email !== '4hisglorymakeup@gmail.com' && adminUser.email !== 'bduran04@gmail.com') {
+        router.push("/");
+        throw new Error("Not authorized as admin");
+      }
+      
+      // Fetch admin data using utility function
+      const adminData = await fetchAdminDataByUserId(session.user.id);
+      
+      if (!adminData) {
+        throw new Error("Failed to fetch admin data");
+      }
+      
+      return { ...adminUser, ...adminData };
     },
     retry: false
   });

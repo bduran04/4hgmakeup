@@ -37,12 +37,12 @@ export default function Login() {
       
       if (session) {
         // Check if user is admin
-        const { data: adminUser, error: adminError } = await supabase
+        const { data: adminUsers, error: adminError } = await supabase
           .from("admin_users")
           .select("*")
-          .eq("user_id", session.user.id)
-          .single();
+          .eq("user_id", session.user.id);
           
+        const adminUser = adminUsers && adminUsers.length > 0 ? adminUsers[0] : null;
         console.log("Admin user check:", adminUser, adminError);
           
         if (!adminError && adminUser) {
@@ -125,23 +125,29 @@ export default function Login() {
       
       if (error) throw error;
       
-      if (data.user) {
-        // Check if user is admin
-        const { data: adminUser, error: adminError } = await supabase
-          .from("admin_users")
-          .select("*")
-          .eq("user_id", data.user.id)
-          .single();
+              if (data.user) {
+          // Check if user is admin and has one of the allowed emails
+          const { data: adminUsers, error: adminError } = await supabase
+            .from("admin_users")
+            .select("*")
+            .eq("user_id", data.user.id);
+            
+          const adminUser = adminUsers && adminUsers.length > 0 ? adminUsers[0] : null;
+          if (adminError || !adminUser) {
+            // If not an admin, sign out
+            await supabase.auth.signOut();
+            throw new Error("Access denied. You are not authorized to access the admin panel.");
+          }
           
-        if (adminError || !adminUser) {
-          // If not an admin, sign out
-          await supabase.auth.signOut();
-          throw new Error("Access denied. You are not authorized to access the admin panel.");
+          // Check if the admin user has the specific email
+          if (adminUser.email !== '4hisglorymakeup@gmail.com') {
+            await supabase.auth.signOut();
+            throw new Error("Access denied. Only the primary admin can access the admin panel.");
+          }
+          
+          // If admin with correct email, redirect to admin dashboard
+          router.push("/admin");
         }
-        
-        // If admin, redirect to admin dashboard
-        router.push("/admin");
-      }
     } catch (error) {
       console.error("Error during login:", error);
       setError(error instanceof Error ? error.message : "Login failed. Please check your credentials.");
@@ -243,12 +249,12 @@ export default function Login() {
 
       // Check if user already exists in admin_users
       console.log("Checking if user already exists in admin_users...");
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUsers, error: checkError } = await supabase
         .from("admin_users")
         .select("*")
-        .eq("user_id", userToRegister.id)
-        .single();
+        .eq("user_id", userToRegister.id);
         
+      const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
       console.log("Existing user check:", existingUser);
       console.log("Check error:", checkError);
 

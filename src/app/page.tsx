@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import ServiceCard from '@/components/ServiceCard';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { fetchAdminData, MOCK_ADMIN_DATA } from '@/lib/utils/admin-data';
 
 // Types
 type GalleryImage = {
@@ -21,8 +22,11 @@ type GalleryImage = {
 
 type AboutData = {
   bio: string;
+  bio_2?: string;
   about_image_1: string;
+  about_image_2?: string;
   about_image_1_path?: string;
+  about_image_2_path?: string;
   isLoading: boolean;
 };
 
@@ -83,7 +87,9 @@ export default function Home() {
   const [isGalleryLoading, setIsGalleryLoading] = useState(true);
   const [aboutData, setAboutData] = useState<AboutData>({
     bio: '',
+    bio_2: '',
     about_image_1: '',
+    about_image_2: '',
     isLoading: true
   });
 
@@ -153,32 +159,43 @@ export default function Home() {
 
     const fetchAboutData = async () => {
       try {
-        const { data, error } = await supabase
-          .from('admin_users')
-          .select('bio, about_image_1, about_image_1_path')
-          .single(); // Assuming you have only one admin user
+        console.log('Fetching about data...');
+        
+        const adminData = await fetchAdminData();
 
-        if (error) throw error;
-        
-        // Get the proper display URL for the about image
-        const aboutImageUrl = getImageDisplayUrl({
-          image_url: data?.about_image_1,
-          image_path: data?.about_image_1_path
+        // Get proper display URLs for images (handles both storage and direct URLs)
+        const displayImage1 = getImageDisplayUrl({
+          image_url: adminData.about_image_1,
+          image_path: adminData.about_image_1_path || undefined
         });
-        
+
+        const displayImage2 = getImageDisplayUrl({
+          image_url: adminData.about_image_2 || '',
+          image_path: adminData.about_image_2_path || undefined
+        });
+
         setAboutData({
-          bio: data?.bio || '',
-          about_image_1: aboutImageUrl,
+          bio: adminData.bio_2 || '', // Homepage shows bio_2
+          bio_2: adminData.bio || '', // Store bio for potential use
+          about_image_1: displayImage1, // Homepage shows about_image_1
+          about_image_2: displayImage2, // Store about_image_2 for potential use
           isLoading: false
         });
+
+        console.log('About data loaded successfully from user:', adminData.email);
       } catch (error) {
         console.error('Error fetching about data:', error);
-        // Set fallback data if fetch fails
+        
+        // Set fallback data if all database queries fail
         setAboutData({
-          bio: 'With over 10 years of experience in the beauty industry, I am dedicated to enhancing your natural beauty. My passion for makeup artistry began at a young age, and I have honed my skills through extensive training and hands-on experience. I specialize in creating timeless looks for brides, photo shoots, special events, quinceneras and everyday glamour that make you feel confident and beautiful.',
-          about_image_1: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg',
+          bio: MOCK_ADMIN_DATA.bio_2 || '', // Homepage shows bio_2 from mock data
+          bio_2: MOCK_ADMIN_DATA.bio || '', // Store bio for potential use
+          about_image_1: MOCK_ADMIN_DATA.about_image_1, // Homepage shows about_image_1 from mock data
+          about_image_2: MOCK_ADMIN_DATA.about_image_2 || '', // Store about_image_2 for potential use
           isLoading: false
         });
+        
+        console.log('Using hardcoded fallback data');
       }
     };
 
@@ -218,7 +235,7 @@ export default function Home() {
       {/* About Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center gap-12">
+          <div key="about-section-1" className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2">
               {aboutData.isLoading ? (
                 <div className="w-[500px] h-[600px] bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
@@ -226,16 +243,16 @@ export default function Home() {
                 </div>
               ) : (
                 <Image
-                  src={aboutData.about_image_1 || 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg'}
+                  src={aboutData.about_image_1 || MOCK_ADMIN_DATA.about_image_1}
                   alt="Makeup Artist"
                   width={500}
                   height={600}
-                  className="rounded-lg shadow-lg"
+                  className="rounded-lg shadow-lg object-cover"
                   onError={(e) => {
                     // Fallback to default image if the loaded image fails
                     const target = e.target as HTMLImageElement;
-                    if (target.src !== 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg') {
-                      target.src = 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067204/IMG_2972_htx11w.jpg';
+                    if (target.src !== MOCK_ADMIN_DATA.about_image_1) {
+                      target.src = MOCK_ADMIN_DATA.about_image_1;
                     }
                   }}
                 />
@@ -252,7 +269,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="text-gray-700 mb-6 whitespace-pre-line">
-                  {aboutData.bio || 'With over 10 years of experience in the beauty industry, I am dedicated to enhancing your natural beauty. My passion for makeup artistry began at a young age, and I have honed my skills through extensive training and hands-on experience.\n\nI specialize in creating timeless looks for brides, photo shoots, special events, quinceneras and everyday glamour that make you feel confident and beautiful.'}
+                  {aboutData.bio || MOCK_ADMIN_DATA.bio_2}
                 </div>
               )}
               <Link
@@ -263,6 +280,8 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
+
         </div>
       </section>
 

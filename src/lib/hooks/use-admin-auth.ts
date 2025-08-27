@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
+import { fetchAdminDataByUserId } from '@/lib/utils/admin-data';
 
 export const useAdminAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -30,13 +31,16 @@ export const useAdminAuth = () => {
     queryFn: async () => {
       if (!user?.id) return false;
       
+      // Check if user is admin and get their data
       const { data, error } = await supabase
         .from('admin_users')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
+        .select('id, email')
+        .eq('user_id', user.id);
       
-      return !!data && !error;
+      if (!data || error || data.length === 0) return false;
+      
+      // Allow access for both admin emails
+      return data[0].email === '4hisglorymakeup@gmail.com' || data[0].email === 'bduran04@gmail.com';
     },
     enabled: !!user?.id,
   });

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import { Award, Heart, Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { fetchAdminData, MOCK_ADMIN_DATA } from '@/lib/utils/admin-data';
 
 // Utility function to get display URL (prioritizes storage over direct URL)
 const getImageDisplayUrl = (image: { image_url?: string; image_path?: string }): string => {
@@ -32,72 +33,37 @@ export default function About() {
       try {
         console.log('Fetching about data...');
         
-        // First, try to get data from the specific email user
-        const { data: primaryUser, error: primaryError } = await supabase
-          .from('admin_users')
-          .select('bio, bio_2, about_image_1, about_image_2, about_image_1_path, about_image_2_path, email')
-          .eq('email', '4hisglorymakeup@gmail.com')
-          .single();
+        const adminData = await fetchAdminData();
 
-        let userData = null;
+        // Get proper display URLs for images (handles both storage and direct URLs)
+        const displayImage1 = getImageDisplayUrl({
+          image_url: adminData.about_image_1,
+          image_path: adminData.about_image_1_path || undefined
+        });
 
-        if (primaryUser && !primaryError) {
-          console.log('Found primary user with specific email');
-          userData = primaryUser;
-        } else {
-          console.log('Primary user not found, trying fallback admin user...');
-          
-          // If specific email user doesn't exist, get any admin user
-          const { data: fallbackUser, error: fallbackError } = await supabase
-            .from('admin_users')
-            .select('bio, bio_2, about_image_1, about_image_2, about_image_1_path, about_image_2_path, email')
-            .limit(1)
-            .single();
+        const displayImage2 = getImageDisplayUrl({
+          image_url: adminData.about_image_2 || '',
+          image_path: adminData.about_image_2_path || undefined
+        });
 
-          if (fallbackUser && !fallbackError) {
-            console.log('Using fallback admin user:', fallbackUser.email);
-            userData = fallbackUser;
-          } else {
-            console.log('No admin users found, using fallback data');
-            throw new Error('No admin users found');
-          }
-        }
+        setAboutData({
+          bio: adminData.bio, // About page shows bio
+          bio_2: adminData.bio_2 || '', // Store bio_2 for potential use
+          about_image_1: displayImage2, // About page shows about_image_2
+          about_image_2: displayImage1, // Store about_image_1 for potential use
+          isLoading: false
+        });
 
-        if (userData) {
-          // Clean any extra quotes from the image URLs in the event there is unclean data
-          const cleanImage1 = userData?.about_image_1 ? userData.about_image_1.replace(/^["']|["']$/g, '') : '';
-          const cleanImage2 = userData?.about_image_2 ? userData.about_image_2.replace(/^["']|["']$/g, '') : '';
-
-          // Get proper display URLs for images (handles both storage and direct URLs)
-          const displayImage1 = getImageDisplayUrl({
-            image_url: cleanImage1,
-            image_path: userData?.about_image_1_path
-          });
-
-          const displayImage2 = getImageDisplayUrl({
-            image_url: cleanImage2,
-            image_path: userData?.about_image_2_path
-          });
-
-          setAboutData({
-            bio: userData?.bio || '',
-            bio_2: userData?.bio_2 || '',
-            about_image_1: displayImage1,
-            about_image_2: displayImage2,
-            isLoading: false
-          });
-
-          console.log('About data loaded successfully from user:', userData.email);
-        }
+        console.log('About data loaded successfully from user:', adminData.email);
       } catch (error) {
         console.error('Error fetching about data:', error);
         
         // Set fallback data if all database queries fail
         setAboutData({
-          bio: 'With over 10 years of experience in the beauty industry, my journey as a makeup artist began with a simple passion for enhancing natural beauty. What started as a creative outlet soon blossomed into a fulfilling career where I get to help others feel confident and beautiful.\n\nI specialize in creating timeless, elegant looks for weddings, quinceañeras, special events, and photoshoots. My philosophy is that makeup should enhance your features, not mask them. Each face I work on is unique, and I take pride in customizing my approach to complement your individual beauty.\n\nI continually update my techniques and product knowledge to provide you with the best possible experience.',
-          bio_2: 'Every makeup session is a collaborative experience where I work closely with you to achieve your vision. I believe in creating a comfortable, relaxing environment where you can unwind and enjoy the transformation process.\n\nWhether it\'s your wedding day, a special photoshoot, or a milestone celebration, I\'m here to ensure you look and feel your absolute best. My attention to detail and commitment to excellence means every look is perfectly tailored to you.',
-          about_image_1: 'https://res.cloudinary.com/dzrlbq2wf/image/upload/v1746067227/IMG_2974_t0paza.jpg',
-          about_image_2: '',
+          bio: MOCK_ADMIN_DATA.bio, // About page shows bio from mock data
+          bio_2: MOCK_ADMIN_DATA.bio_2 || '', // Store bio_2 for potential use
+          about_image_1: MOCK_ADMIN_DATA.about_image_2 || '', // About page shows about_image_2 from mock data
+          about_image_2: MOCK_ADMIN_DATA.about_image_1, // Store about_image_1 for potential use
           isLoading: false
         });
         

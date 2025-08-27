@@ -21,14 +21,15 @@ export async function GET(request: NextRequest) {
       
       if (session && session.user) {
         // Check if user is already in admin_users table
-        const { data: existingAdmin } = await supabase
+        const { data: existingAdmins } = await supabase
           .from('admin_users')
           .select('*')
-          .eq('user_id', session.user.id)
-          .single();
+          .eq('user_id', session.user.id);
         
-        // If user is already an admin, redirect to admin dashboard
-        if (existingAdmin) {
+        const existingAdmin = existingAdmins && existingAdmins.length > 0 ? existingAdmins[0] : null;
+        
+        // If user is already an admin with either of the allowed emails, redirect to admin dashboard
+        if (existingAdmin && (existingAdmin.email === '4hisglorymakeup@gmail.com' || existingAdmin.email === 'bduran04@gmail.com')) {
           return NextResponse.redirect(`${requestUrl.origin}/admin`);
         }
         
