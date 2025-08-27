@@ -133,38 +133,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Second Image Section (if about_image_2 exists) */}
-      {!aboutData.isLoading && aboutData.about_image_2 && (
-        <section className="py-16 px-4 bg-beauty-beige">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row-reverse gap-12 items-center">
-              <div className="md:w-1/2">
-                <Image
-                  src={aboutData.about_image_2}
-                  alt="Natalie Villela at work"
-                  width={500}
-                  height={600}
-                  className="rounded-lg shadow-lg object-cover"
-                  onError={(e) => {
-                    // Hide the section if the second image fails to load
-                    const section = e.currentTarget.closest('section');
-                    if (section) {
-                      section.style.display = 'none';
-                    }
-                  }}
-                />
-              </div>
-              <div className="md:w-1/2">
-                <h2 className="text-3xl font-serif text-beauty-brown mb-6">Behind the Scenes</h2>
-                <div className="text-gray-700 whitespace-pre-line">
-                  {aboutData.bio_2 || 'Every makeup session is a collaborative experience where I work closely with you to achieve your vision. I believe in creating a comfortable, relaxing environment where you can unwind and enjoy the transformation process.\n\nWhether it\'s your wedding day, a special photoshoot, or a milestone celebration, I\'m here to ensure you look and feel your absolute best. My attention to detail and commitment to excellence means every look is perfectly tailored to you.'}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Philosophy Section */}
       <section className="py-16 px-4 bg-beauty-beige">
         <div className="max-w-6xl mx-auto">
